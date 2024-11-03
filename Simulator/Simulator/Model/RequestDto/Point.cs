@@ -2,4 +2,7 @@
 
 namespace Simulator.Model.RequestDto;
 
-public record Point(string Id, TrafficLight? TrafficLight, TimeDensity? PedestriansFlow) { }
+public record Point(string Id, TimeDensity? PedestriansFlow)
+{
+    //public Queue<Vehicle> VehicleQueue { get; set; } = new Queue<Vehicle>();
+}
