@@ -1,15 +1,13 @@
-﻿using Simulator.Model.RequestDto;
-using Simulator.Model.ResponseDto;
+﻿using AutoMapper;
+using Simulator.Model.Dtos.Response;
 using Simulator.Processes;
 using Simulator.Services.Interface;
-using Simulator.Utils;
-using AutoMapper;
 
 namespace Simulator.Services.Implementation;
 
 public class SimulationService(IMapper mapper) : ISimulationService
 {
-    private List<Simulation> _simulations = null!;
+    private readonly List<Simulation> _simulations = null!;
     private const int SimulationTime = 24 * 60 * 60;
     //public void SetUpSimulations(List<> flows,List<DTO.Edge> edges, List<DTO.Point> points, List<DTO.TrafficLight> trafficLights,int simulationsQuantity = 5)
     //{
@@ -26,7 +24,7 @@ public class SimulationService(IMapper mapper) : ISimulationService
     //        });
     //    }
     //}
-    private SimulationResult RunSimulation(Simulation simulation)
+    private SimulationResponseTo RunSimulation(Simulation simulation)
     {
         for (int currentTime = 0; currentTime < SimulationTime; currentTime++)
         {
@@ -36,9 +34,9 @@ public class SimulationService(IMapper mapper) : ISimulationService
         }
         return null!;
     }
-    public List<SimulationResult> SimulateTraffic()
+    public List<SimulationResponseTo> SimulateTraffic()
     {
-        var results = new List<SimulationResult>();
+        var results = new List<SimulationResponseTo>();
         foreach (var simulation in _simulations)
         {
             results.Add(RunSimulation(simulation));

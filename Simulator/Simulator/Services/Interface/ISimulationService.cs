@@ -1,8 +1,8 @@
-﻿using Simulator.Model.ResponseDto;
+﻿using Simulator.Model.Dtos.Response;
 
 namespace Simulator.Services.Interface;
 
 public interface ISimulationService
 {
-    List<SimulationResult> SimulateTraffic();
+    List<SimulationResponseTo> SimulateTraffic();
 }

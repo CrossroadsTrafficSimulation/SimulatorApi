@@ -2,4 +2,5 @@
 
 public class Vehicle
 {
+    public double CarSize { get; set; }
 }
