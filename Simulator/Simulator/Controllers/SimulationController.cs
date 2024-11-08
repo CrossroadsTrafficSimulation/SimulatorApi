@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Simulator.Model.Dtos.Request;
 using Simulator.Services.Interface;
-using Simulator.SimulationParamsGenerators;
-using Simulator.SimulationParamsGenerators.Implementation;
+using Simulator.Utils.SimulationParamsGenerators.Implementation;
 
 namespace Simulator.Controllers;
 
@@ -19,7 +17,8 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
         Console.WriteLine(new SimulationParamsGeneratorOne().GetSimulationParamsJson());
         var simulationParams = new SimulationParamsGeneratorOne().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
-        var simulationsResults = simulationService.SimulateTraffic();
+
+        _ = simulationService.SimulateTraffic();
         return Ok();
     }
 }

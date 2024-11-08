@@ -1,6 +1,6 @@
 ﻿using Simulator.Model.Dtos.Request;
 
-namespace TestBench.SimulationParamsGenerators.Interface;
+namespace Simulator.Utils.SimulationParamsGenerators.Interface;
 
 public interface ISimulationParamsGenerator
 {
