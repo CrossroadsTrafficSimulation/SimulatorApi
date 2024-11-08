@@ -2,4 +2,4 @@
 
 namespace Simulator.Model.Dtos.Request;
 
-public record TrafficLightRequestTo(int RedSeconds, int YellowSeconds, int GreenSeconds, TrafficLightState InitialState) { }
+public record TrafficLightRequestTo(int RedSeconds, int YellowSeconds, int GreenSeconds, TrafficLightState InitialState = TrafficLightState.Red) { }

@@ -2,4 +2,4 @@
 
 namespace Simulator.Model.Dtos.Request;
 
-public record PointRequestTo(string Id, TimeDensity? PedestriansFlow) { }
+public record PointRequestTo(string Id, TimeDensity? PedestriansFlow = null) { }
