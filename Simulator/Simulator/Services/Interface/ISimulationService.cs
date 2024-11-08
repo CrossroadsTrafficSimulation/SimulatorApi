@@ -1,8 +1,10 @@
-﻿using Simulator.Model.Dtos.Response;
+﻿using Simulator.Model.Dtos.Request;
+using Simulator.Model.Dtos.Response;
 
 namespace Simulator.Services.Interface;
 
 public interface ISimulationService
 {
+    void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 5);
     List<SimulationResponseTo> SimulateTraffic();
 }

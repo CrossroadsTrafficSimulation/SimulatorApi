@@ -1,37 +1,36 @@
 ﻿using AutoMapper;
+using Simulator.Model.Dtos.Request;
 using Simulator.Model.Dtos.Response;
 using Simulator.Processes;
 using Simulator.Services.Interface;
 
 namespace Simulator.Services.Implementation;
 
-public class SimulationService(IMapper mapper) : ISimulationService
+public class SimulationService(IMapper mapper, IModelPreparationService preparationService) : ISimulationService
 {
-    private readonly List<Simulation> _simulations = null!;
+    private readonly List<Simulation> _simulations = new List<Simulation>();
     private const int SimulationTime = 24 * 60 * 60;
-    //public void SetUpSimulations(List<> flows,List<DTO.Edge> edges, List<DTO.Point> points, List<DTO.TrafficLight> trafficLights,int simulationsQuantity = 5)
-    //{
-    //    var rand = new Random();
-    //    _simulations = new List<Simulation>(simulationsQuantity);
-    //    for (int i = 0; i < simulationsQuantity; i++)
-    //    {
-    //        _simulations.Add(new Simulation()
-    //        {
-    //            Edges = edges.Select(e => mapper.Map<PROC.Edge>(e)).ToList(),
-    //            Points = edges.Select(p => mapper.Map<PROC.Point>(p)).ToList(),
-    //            TrafficLights = edges.Select(tr => mapper.Map<PROC.TrafficLight>(tr)).ToList(),
-    //            Flows = edges.Select(f => mapper.Map<PROC.Flow>(f)).ToList()
-    //        });
-    //    }
-    //}
+    public void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 5)
+    {
+        var rand = new Random();
+        for (int i = 0; i < simulationQuantity; i++)
+        {
+            _simulations.Add(new Simulation()
+            {
+                SimulationModel = preparationService.GetSimulationModel(simulationParams)
+            });
+        }
+    }
     private SimulationResponseTo RunSimulation(Simulation simulation)
     {
+        simulation.SetUpFirstEvents();
         for (int currentTime = 0; currentTime < SimulationTime; currentTime++)
         {
             simulation.ProcessTrafficLights(currentTime);
-            simulation.PrecessPedestrians(currentTime);
-            simulation.ProcessVehicles(currentTime);
+            //simulation.ProcessPedestrians(currentTime);
+            //simulation.ProcessVehicles(currentTime);
         }
+        Console.WriteLine("DOne");
         return null!;
     }
     public List<SimulationResponseTo> SimulateTraffic()

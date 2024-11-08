@@ -12,6 +12,8 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
     [Route("run")]
     public IActionResult RunSimulation([FromBody] SimulationParamsRequestTo simulationParams)
     {
+        simulationService.SetUpSimulations(simulationParams);
+        var simulationsResults = simulationService.SimulateTraffic();
         return Ok();
     }
 }

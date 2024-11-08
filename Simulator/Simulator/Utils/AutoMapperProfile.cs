@@ -13,6 +13,7 @@ public class AutoMapperProfile : Profile
         _ = CreateMap<PointRequestTo, Point>();
         _ = CreateMap<TrafficLightRequestTo, TrafficLight>()
             .ForMember(dst => dst.CurrentState, opt => opt.MapFrom(src => src.InitialState))
+            .ForMember(dst => dst.PreviousState, opt => opt.MapFrom(stc => stc.InitialState))
             .ForMember(dst => dst.States, opt => opt.MapFrom(src =>
                 new Dictionary<TrafficLightState, int>
                 {

@@ -1,15 +1,14 @@
 ﻿using Simulator.Model;
+using Simulator.Model.Dtos;
 using Simulator.Model.Dtos.Response;
 using Simulator.Model.Entites;
+using Simulator.Model.Enums;
 
 namespace Simulator.Processes;
 
 public class Simulation
 {
-    public List<Flow> Flows { get; set; } = null!;
-    public List<Edge> Edges { get; set; } = null!;
-    public List<Point> Points { get; set; } = null!;
-    public List<TrafficLight> TrafficLights { get; set; } = null!;
+    public SimulationModel SimulationModel { get; set; } = null!;
 
     private readonly List<Event> _events = [];
 
@@ -24,11 +23,12 @@ public class Simulation
         foreach (var e in trafficLightsEvents)
         {
             e.Action();
+            _events.Remove(e);
         }
 
     }
 
-    public void PrecessPedestrians(int currentTime)
+    public void ProcessPedestrians(int currentTime)
     {
         throw new NotImplementedException();
     }
@@ -38,19 +38,52 @@ public class Simulation
         throw new NotImplementedException();
     }
 
-    private void ChangeTrafficLightState(TrafficLight? trafficLight, int NextActionTime)
+    private void ChangeTrafficLightState(TrafficLight? trafficLight, int EndOfAction)
     {
-        /*            if (trafficLight == null)
-                        throw new ArgumentNullException($"Traffic light is null");
-                    trafficLight.CurrentState++;
-                    trafficLight.CurrentState %= trafficLight.States.Count;
-                    _events.Add(new Event() 
-                    {
-                        Action = () => ChangeTrafficLightState(trafficLight, NextActionTime + trafficLight.States[trafficLight.CurrentState]),
-                        Duration = trafficLight.CurrentState,
-                        EndTime = NextActionTime + trafficLight.States[trafficLight.CurrentState],
-                        StartTime = NextActionTime,
-                        Type = "TrafficLight"
-                    });*/
+        ArgumentNullException.ThrowIfNull(trafficLight);
+
+        if (trafficLight.CurrentState == TrafficLightState.Green)
+        {
+            trafficLight.PreviousState = TrafficLightState.Green;
+            trafficLight.CurrentState = TrafficLightState.Yellow;
+        }
+        else if (trafficLight.CurrentState == TrafficLightState.Red)
+        {
+            trafficLight.PreviousState = TrafficLightState.Red;
+            trafficLight.CurrentState = TrafficLightState.Yellow;
+        }
+        else
+        {
+            trafficLight.CurrentState = trafficLight.PreviousState == TrafficLightState.Green ? TrafficLightState.Red : TrafficLightState.Green;
+            trafficLight.PreviousState = TrafficLightState.Yellow;
+
+        }
+
+        //Console.WriteLine($"Traffic light changed Color from {trafficLight.PreviousState} to {trafficLight.CurrentState}, Event was created at {EndOfAction}");
+
+        _events.Add(new Event()
+        {
+            Action = () => ChangeTrafficLightState(trafficLight, EndOfAction + trafficLight.States[trafficLight.CurrentState]),
+            Duration = trafficLight.States[trafficLight.CurrentState],
+            EndTime = EndOfAction + trafficLight.States[trafficLight.CurrentState],
+            StartTime = EndOfAction,
+            Type = "TrafficLight"
+        });
     }
+
+    public void SetUpFirstEvents()
+    {
+        foreach (var trafficLight in SimulationModel.TrafficLights)
+        {
+            _events.Add(new Event()
+            {
+                Action = () => ChangeTrafficLightState(trafficLight, trafficLight.States[trafficLight.CurrentState]),
+                Duration = trafficLight.States[trafficLight.CurrentState],
+                EndTime = trafficLight.States[trafficLight.CurrentState],
+                StartTime = 0,
+                Type = "TrafficLight"
+            });
+        }
+    }
+
 }
