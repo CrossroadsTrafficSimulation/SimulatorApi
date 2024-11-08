@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Simulator.Model.Dtos.Request;
 using Simulator.Services.Interface;
+using Simulator.SimulationParamsGenerators;
+using Simulator.SimulationParamsGenerators.Implementation;
 
 namespace Simulator.Controllers;
 
@@ -10,8 +12,12 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
 {
     [HttpPost]
     [Route("run")]
-    public IActionResult RunSimulation([FromBody] SimulationParamsRequestTo simulationParams)
+    public IActionResult RunSimulation(
+        //[FromBody] SimulationParamsRequestTo simulationParams
+        )
     {
+        Console.WriteLine(new SimulationParamsGeneratorOne().GetSimulationParamsJson());
+        var simulationParams = new SimulationParamsGeneratorOne().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
         var simulationsResults = simulationService.SimulateTraffic();
         return Ok();
