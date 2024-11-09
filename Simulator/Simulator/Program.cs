@@ -9,7 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddScoped<ISimulationService, SimulationService>();
-builder.Services.AddScoped<IModelPreparationService, ModelPreparationService>();
+builder.Services.AddTransient<IModelPreparationService, ModelPreparationService>();
 
 var app = builder.Build();
 

@@ -19,6 +19,8 @@ public class ModelPreparationService(ILogger<ModelPreparationService> logger, IM
 
     public SimulationModel GetSimulationModel(SimulationParamsRequestTo simulationParams)
     {
+        _points.Clear();
+
         logger.LogInformation("Received: {param}", simulationParams);
 
         logger.LogInformation("Points processing");
