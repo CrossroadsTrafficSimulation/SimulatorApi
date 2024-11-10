@@ -126,7 +126,7 @@ public class Simulation
 
             _events.Add(new Event()
             {
-                Action = () => GeneratePedestrian(points, 60),
+                Action = () => GeneratePedestrian(points, endTime: 60),
                 Duration = 60,
                 StartTime = 0,
                 EndTime = 60,
@@ -137,39 +137,41 @@ public class Simulation
         }
     }
 
-    public void GeneratePedestrian(List<Point> points, int EndTime)
+    public void GeneratePedestrian(List<Point> crosswalk, int endTime)
     {
-        var flow = points
-            .FirstOrDefault()?
-            .PedestriansFlow?
-            .Where(p => p.Key.Hour * 60 * 60 + p.Key.Minute * 60 + p.Key.Second <= EndTime)
-            .OrderBy(p => p.Key.Hour * 60 * 60 + p.Key.Minute * 60 + p.Key.Second)
+        _events.Add(new Event()
+        {
+            Action = () => GeneratePedestrian(crosswalk, endTime + 60),
+            Duration = 60,
+            StartTime = endTime,
+            EndTime = endTime + 60,
+            Type = "Pedestrian"
+        });
+
+        var flow = crosswalk
+            .FirstOrDefault()?.PedestriansFlow?
+            .Where(p => p.Key.Hour * 60 * 60 + p.Key.Minute * 60 + p.Key.Second <= endTime)
             .Select(p => p.Value)
             .LastOrDefault();
         //Console.WriteLine($"Current flow generated: {flow.Value} for point: {points.Id} at {EndTime}");
 
-        _events.Add(new Event()
-        {
-            Action = () => GeneratePedestrian(points, EndTime + 60),
-            Duration = 60,
-            StartTime = EndTime,
-            EndTime = EndTime + 60,
-            Type = "Pedestrian"
-        });
-        if (flow.Value == 0)
+        if (flow is null || flow.Value == 0)
         {
             return;
         }
-        var edges = points
-            .Join(SimulationModel.Edges, p => p.Id, e => e.StartPointId, (p,e) =>new {Edge = e})
+
+        var edges = crosswalk
+            .Join(SimulationModel.Edges, p => p.Id, e => e.StartPointId, (p, e) => new { Edge = e })
             .Where(e => e.Edge.TrafficLight is not null)
             .Select(e => e.Edge.Id)
             .ToList();
-        var trafficLights = SimulationModel
-            .TrafficLights
+
+        var trafficLights = SimulationModel.TrafficLights
             .Where(t => edges.Contains(t.EdgeId))
             .ToList();
+        
         var isPossibleToCross = true;
+        
         foreach (var tr in trafficLights)
         {
             if (tr.CurrentState != TrafficLightState.Red)
@@ -178,39 +180,41 @@ public class Simulation
                 break;
             }
         }
+
         if (isPossibleToCross)
         {
             var rand = new Random();
-            foreach (var point in points)
+            foreach (var point in crosswalk)
             {
                 point.PedestriansOnTheRoad += flow.Value;
             }
             
             for (int i = 0; i < flow.Value; i++)
             {
-                var crossingTime = rand.Next(5, 10) * points.Count;
+                var crossingTime = rand.Next(5, 10) * crosswalk.Count;
                 _events.Add(new Event()
                 {
-                    Action = () => CrossTheRoad(points),
+                    Action = () => CrossTheRoad(crosswalk),
                     Duration = crossingTime,
-                    EndTime = EndTime + crossingTime,
-                    StartTime = EndTime,
+                    EndTime = endTime + crossingTime,
+                    StartTime = endTime,
                     Type = "Pedestrian"
                 });
             }
         }
         else
         {
-            foreach (var point in points)
+            foreach (var point in crosswalk)
             {
                 point.NumberOfPedestrians += flow.Value;
             }
+
             _events.Add(new Event()
             {
-                Action = () => StartCrossTheRoad(points, trafficLights!, EndTime + 1),
+                Action = () => StartCrossTheRoad(crosswalk, trafficLights!, endTime + 1),
                 Duration = 1,
-                EndTime = EndTime + 1,
-                StartTime = EndTime,
+                EndTime = endTime + 1,
+                StartTime = endTime,
                 Type = "Pedestrian"
             });
         }
@@ -218,42 +222,35 @@ public class Simulation
 
        
         //Console.WriteLine("")
-
-
-
     }
 
-    public void StartCrossTheRoad(List<Point> points, List<TrafficLight> trafficLights, int EndTime)
+    public void StartCrossTheRoad(List<Point> crosswalk, List<TrafficLight> trafficLights, int EndTime)
     {
-        var isPossibleToCross = true;
-        foreach (var tr in trafficLights)
-        {
-            if (tr.CurrentState != TrafficLightState.Red)
-            {
-                isPossibleToCross = false;
-                break;
-            }
-        }
+        var isPossibleToCross = trafficLights.All(tl => tl.CurrentState == TrafficLightState.Red);
+
         if (isPossibleToCross)
         {
-            foreach (var point in points)
+            foreach (var point in crosswalk)
             {
                 point.PedestriansOnTheRoad += point.NumberOfPedestrians;
             }
+
             var rand = new Random();
-            for (int i = 0; i < points.FirstOrDefault()?.NumberOfPedestrians; i++)
+
+            for (int i = 0; i < crosswalk.FirstOrDefault()?.NumberOfPedestrians; i++)
             {
-                var crossingTime = rand.Next(5, 10)*points.Count;
+                var crossingTime = rand.Next(5, 10) * crosswalk.Count;
+
                 _events.Add(new Event()
                 {
-                    Action = () => CrossTheRoad(points),
+                    Action = () => CrossTheRoad(crosswalk),
                     Duration = crossingTime,
                     EndTime = EndTime + crossingTime,
                     StartTime = EndTime,
                     Type = "Pedestrian"
                 });
             }
-            foreach (var point in points)
+            foreach (var point in crosswalk)
             {
                 point.NumberOfPedestrians = 0;
             }
@@ -263,7 +260,7 @@ public class Simulation
         {
             _events.Add(new Event()
             {
-                Action = () => StartCrossTheRoad(points, trafficLights, EndTime + 1),
+                Action = () => StartCrossTheRoad(crosswalk, trafficLights, EndTime + 1),
                 Duration = 1,
                 EndTime = EndTime + 1,
                 StartTime = EndTime,
@@ -272,9 +269,9 @@ public class Simulation
         }
     }
 
-    public void CrossTheRoad(List<Point> points)
+    public void CrossTheRoad(List<Point> crosswalk)
     {
-        foreach (var point in points)
+        foreach (var point in crosswalk)
         {
             if (point.PedestriansOnTheRoad < 1.0d)
             {
