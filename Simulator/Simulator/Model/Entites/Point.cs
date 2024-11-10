@@ -6,6 +6,7 @@ public class Point()
 {
     public string Id { get; set; } = null!;
     public List<Edge> Edges { get; set; } = [];
+    public List<TrafficLight> TrafficLights { get; set; } = [];
     public Flow Flow { get; set; } = null!;
     public TimeDensity? PedestriansFlow { get; set; } = null;
     public double NumberOfPedestrians { get; set; } = 0;

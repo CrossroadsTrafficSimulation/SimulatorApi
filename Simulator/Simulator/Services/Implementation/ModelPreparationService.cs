@@ -110,6 +110,7 @@ public class ModelPreparationService(ILogger<ModelPreparationService> logger, IM
                 edge.TrafficLight.EdgeId = edge.Id;
                 edge.TrafficLight.Edge = edge;
                 resTrafficLights.Add(edge.TrafficLight);
+                _points[edge.StartPointId].TrafficLights.Add(edge.TrafficLight);
             }
             resEdges.Add(edge);
             edge.StartPoint = _points[edgeRequest.StartPointId];
