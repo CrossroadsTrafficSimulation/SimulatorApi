@@ -15,11 +15,11 @@ namespace Simulator.Services.Implementation;
 
 public class ModelPreparationService(ILogger<ModelPreparationService> logger, IMapper mapper) : IModelPreparationService
 {
-    private readonly Dictionary<string, Point> _points = [];
+    private Dictionary<string, Point> _points = [];
 
     public SimulationModel GetSimulationModel(SimulationParamsRequestTo simulationParams)
     {
-        _points.Clear();
+        _points = [];
 
         logger.LogInformation("Received: {param}", simulationParams);
 

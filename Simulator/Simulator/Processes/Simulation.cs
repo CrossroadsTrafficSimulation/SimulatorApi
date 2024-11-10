@@ -52,10 +52,11 @@ public class Simulation
         throw new NotImplementedException();
     }
 
-    private void ChangeTrafficLightState(TrafficLight? trafficLight, int EndOfAction)
+    private void ChangeTrafficLightState(TrafficLight? trafficLight, int endOfAction)
     {
         ArgumentNullException.ThrowIfNull(trafficLight);
 
+        // !!! MOVE TO TrafficLight CLASS METHOD !!!
         if (trafficLight.CurrentState == TrafficLightState.Green)
         {
             trafficLight.PreviousState = TrafficLightState.Green;
@@ -70,7 +71,6 @@ public class Simulation
         {
             trafficLight.CurrentState = trafficLight.PreviousState == TrafficLightState.Green ? TrafficLightState.Red : TrafficLightState.Green;
             trafficLight.PreviousState = TrafficLightState.Yellow;
-
         }
 
         //Console.WriteLine($"Traffic light changed Color from {trafficLight.PreviousState} to {trafficLight.CurrentState}, Event was created at {EndOfAction} at edge {trafficLight.EdgeId}");
@@ -82,10 +82,10 @@ public class Simulation
 
         _events.Add(new Event()
         {
-            Action = () => ChangeTrafficLightState(trafficLight, EndOfAction + trafficLight.States[trafficLight.CurrentState]),
+            Action = () => ChangeTrafficLightState(trafficLight, endOfAction + trafficLight.States[trafficLight.CurrentState]),
             Duration = trafficLight.States[trafficLight.CurrentState],
-            EndTime = EndOfAction + trafficLight.States[trafficLight.CurrentState],
-            StartTime = EndOfAction,
+            EndTime = endOfAction + trafficLight.States[trafficLight.CurrentState],
+            StartTime = endOfAction,
             Type = "TrafficLight"
         });
     }
@@ -105,23 +105,32 @@ public class Simulation
                 Type = "TrafficLight"
             });
         }
-        var tempFlows = SimulationModel.Points.Where(p => p.Value.PedestriansFlow is not null && p.Value.PedestriansFlow?.Count != 0).ToList();
-        var listOfFlows = new List<List<Point>>();
-        while (tempFlows.Count > 0)
-        {
-            var point = tempFlows
-                .FirstOrDefault();
-            var points = tempFlows
-                .Where(p => p.Value.PedestriansFlow!.Equals(point.Value.PedestriansFlow))
-                .ToList();
-            listOfFlows.Add(points.Select(p => p.Value).ToList());
-            foreach (var p in points)
-            {
-                tempFlows.Remove(p);
-            }
-        }
 
-        foreach (var points in listOfFlows)
+        // !!! REPLACED !!!
+        /*        var pedestrianFlows = SimulationModel.Points.Where(p => p.Value.PedestriansFlow is not null).ToList();
+                var pedestrianFlowsList = new List<List<Point>>();
+
+                while (pedestrianFlows.Count > 0)
+                {
+                    var point = pedestrianFlows.First().Value;
+                    var points = pedestrianFlows
+                        .Where(p => p.Value.PedestriansFlow!.Equals(point.PedestriansFlow))
+                        .ToList();
+                    pedestrianFlowsList.Add(points.Select(p => p.Value).ToList());
+                    foreach (var p in points)
+                    {
+                        pedestrianFlows.Remove(p);
+                    }
+                }*/
+        // !!! REPLACED !!!
+        var pedestrianFlowsList = SimulationModel.Points
+            .Where(p => p.Value.PedestriansFlow is not null)
+            .GroupBy(p => p.Value.PedestriansFlow)
+            .Select(group => group.Select(p => p.Value).ToList())
+            .ToList();
+        // !!! REPLACED !!!
+
+        foreach (var points in pedestrianFlowsList)
         {
 
             _events.Add(new Event()
@@ -132,8 +141,6 @@ public class Simulation
                 EndTime = 60,
                 Type = "Pedestrian"
             });
-
-
         }
     }
 
@@ -160,26 +167,9 @@ public class Simulation
             return;
         }
 
-        var edges = crosswalk
-            .Join(SimulationModel.Edges, p => p.Id, e => e.StartPointId, (p, e) => new { Edge = e })
-            .Where(e => e.Edge.TrafficLight is not null)
-            .Select(e => e.Edge.Id)
-            .ToList();
+        var trafficLights = crosswalk.SelectMany(p => p.TrafficLights).ToList();
 
-        var trafficLights = SimulationModel.TrafficLights
-            .Where(t => edges.Contains(t.EdgeId))
-            .ToList();
-        
-        var isPossibleToCross = true;
-        
-        foreach (var tr in trafficLights)
-        {
-            if (tr.CurrentState != TrafficLightState.Red)
-            {
-                isPossibleToCross = false;
-                break;
-            }
-        }
+        var isPossibleToCross = trafficLights.All(tl => tl.CurrentState == TrafficLightState.Red);
 
         if (isPossibleToCross)
         {
@@ -211,7 +201,7 @@ public class Simulation
 
             _events.Add(new Event()
             {
-                Action = () => StartCrossTheRoad(crosswalk, trafficLights!, endTime + 1),
+                Action = () => StartCrossTheRoad(crosswalk, trafficLights, endTime + 1),
                 Duration = 1,
                 EndTime = endTime + 1,
                 StartTime = endTime,

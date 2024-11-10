@@ -30,12 +30,13 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
             simulation.ProcessPedestrians(currentTime);
             //simulation.ProcessVehicles(currentTime);
         }
-        Console.WriteLine("DOne");
+        Console.WriteLine("Done");
         return null!;
     }
     public List<SimulationResponseTo> SimulateTraffic()
     {
         var results = new List<SimulationResponseTo>();
+
         foreach (var simulation in _simulations)
         {
             results.Add(RunSimulation(simulation));
