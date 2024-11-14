@@ -3,6 +3,7 @@ using Simulator.Model.Dtos.Request;
 using Simulator.Model.Dtos.Response;
 using Simulator.Processes;
 using Simulator.Services.Interface;
+using System.Diagnostics;
 
 namespace Simulator.Services.Implementation;
 
@@ -23,6 +24,8 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
     }
     private SimulationResponseTo RunSimulation(Simulation simulation)
     {
+        var watch = new Stopwatch();
+        watch.Start();
         simulation.SetUpFirstEvents();
         for (int currentTime = 0; currentTime < SimulationTime; currentTime++)
         {
@@ -30,7 +33,8 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
             simulation.ProcessPedestrians(currentTime);
             //simulation.ProcessVehicles(currentTime);
         }
-        Console.WriteLine("Done");
+        watch.Stop();
+        Console.WriteLine($"Done: {watch.ElapsedMilliseconds}");
         return null!;
     }
     public List<SimulationResponseTo> SimulateTraffic()
