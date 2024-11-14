@@ -9,8 +9,8 @@ public class Point()
     public List<TrafficLight> TrafficLights { get; set; } = [];
     public Flow Flow { get; set; } = null!;
     public TimeDensity? PedestriansFlow { get; set; } = null;
-    public double NumberOfPedestrians { get; set; } = 0;
-    public double PedestriansOnTheRoad { get; set; } = 0;
+    public double NumberOfPedestrians { get; set; } = 0.0;
+    public double PedestriansOnTheRoad { get; set; } = 0.0;
 
     public Point(string id, List<Edge> edges, Flow flow, TimeDensity? pedestriansFlow) : this()
     {

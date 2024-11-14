@@ -42,7 +42,8 @@ public class Simulation
         Console.WriteLine($"Current time: {currentTime}");
         foreach (var p in SimulationModel.Points.Where(p => p.Value.PedestriansFlow is not null))
         {
-            Console.WriteLine($"Pedestrians: {p.Key} - {p.Value.PedestriansOnTheRoad} - {p.Value.NumberOfPedestrians}");
+            if (p.Value.PedestriansOnTheRoad != 0.0 ||p.Value.NumberOfPedestrians != 0.0)
+                Console.WriteLine($"Pedestrians: {p.Key} - {p.Value.PedestriansOnTheRoad} - {p.Value.NumberOfPedestrians}");
         }
         //foreach (var )
     }
@@ -135,10 +136,10 @@ public class Simulation
 
             _events.Add(new Event()
             {
-                Action = () => GeneratePedestrian(points, endTime: 60),
-                Duration = 60,
+                Action = () => GeneratePedestrian(points, endTime: 1),
+                Duration = 1,
                 StartTime = 0,
-                EndTime = 60,
+                EndTime = 1,
                 Type = "Pedestrian"
             });
         }
@@ -148,10 +149,10 @@ public class Simulation
     {
         _events.Add(new Event()
         {
-            Action = () => GeneratePedestrian(crosswalk, endTime + 60),
-            Duration = 60,
+            Action = () => GeneratePedestrian(crosswalk, endTime + 1),
+            Duration = 1,
             StartTime = endTime,
-            EndTime = endTime + 60,
+            EndTime = endTime + 1,
             Type = "Pedestrian"
         });
 
@@ -176,10 +177,19 @@ public class Simulation
             var rand = new Random();
             foreach (var point in crosswalk)
             {
-                point.PedestriansOnTheRoad += flow.Value;
+                point.NumberOfPedestrians += flow.Value/60.0;
+            }
+
+            if (crosswalk[0].NumberOfPedestrians >= 1.0)
+            {
+                foreach (var point in crosswalk)
+                {
+                    point.PedestriansOnTheRoad += (int)(point.NumberOfPedestrians);
+                    point.NumberOfPedestrians = point.NumberOfPedestrians - (int)point.NumberOfPedestrians;
+                }
             }
             
-            for (int i = 0; i < flow.Value; i++)
+            for (int i = 0; i < crosswalk[0].PedestriansOnTheRoad; i++)
             {
                 var crossingTime = rand.Next(5, 10) * crosswalk.Count;
                 _events.Add(new Event()
@@ -196,7 +206,7 @@ public class Simulation
         {
             foreach (var point in crosswalk)
             {
-                point.NumberOfPedestrians += flow.Value;
+                point.NumberOfPedestrians += flow.Value/60.0;
             }
 
             _events.Add(new Event()
@@ -222,7 +232,7 @@ public class Simulation
         {
             foreach (var point in crosswalk)
             {
-                point.PedestriansOnTheRoad += point.NumberOfPedestrians;
+                point.PedestriansOnTheRoad += (int)point.NumberOfPedestrians;
             }
 
             var rand = new Random();
@@ -242,7 +252,7 @@ public class Simulation
             }
             foreach (var point in crosswalk)
             {
-                point.NumberOfPedestrians = 0;
+                point.NumberOfPedestrians = point.NumberOfPedestrians - (int)point.NumberOfPedestrians;
             }
 
         }
