@@ -7,6 +7,7 @@ public class Flow()
     public Point Point { get; set; } = null!;
     public string PointId { get; set; } = null!;
     public TimeDensity Density { get; set; } = null!;
+    public double VehiclesInQueue = 0;
 
     public Flow(Point point, TimeDensity density) : this()
     {

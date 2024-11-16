@@ -10,11 +10,11 @@ namespace Simulator.Processes;
 public class Simulation
 {
     public SimulationModel SimulationModel { get; set; } = null!;
-    private const int simulationTime = 24*60*60;
-    private readonly List<Event> _events = [];
+    private const int simulationTime = 24 * 60 * 60;
     private readonly List<Event>[] _trafficLightQueue = new List<Event>[simulationTime];
     private readonly List<Event>[] _pedestrianQueue = new List<Event>[simulationTime];
     private readonly List<Event>[] _vehicleQueue = new List<Event>[simulationTime];
+    private readonly Random _random = new Random();
 
     public Simulation()
     {
@@ -27,8 +27,24 @@ public class Simulation
     }
     public void ProcessVehicles(int currentTime)
     {
-        var vehicleEvents = _events.Where(e => e.Type.Equals("Vehicle", StringComparison.OrdinalIgnoreCase));
-        throw new NotImplementedException();
+        var vehicleEvents = _vehicleQueue[currentTime];
+        foreach (var e in vehicleEvents)
+        {
+            e.Action();
+        }
+        _vehicleQueue[currentTime].Clear();
+
+        //Console.WriteLine($"Current time: {currentTime}");
+        //foreach (var edge in SimulationModel.Edges)
+        //{
+        //    if (edge.Vehicles.Count != 0)
+        //    Console.WriteLine($"Edge id: {edge.Id} contains {edge.Vehicles.Count} vehicles with car length: {edge.SumCarsLength}");
+        //}
+        //foreach (var flow in SimulationModel.Flows)
+        //{
+        //    Console.WriteLine($"Flow id: {flow.PointId} contains {flow.VehiclesInQueue} vehicles");
+        //}
+        //Console.WriteLine();
     }
     public void ProcessTrafficLights(int currentTime)
     {
@@ -55,7 +71,7 @@ public class Simulation
         //Console.WriteLine($"Current time: {currentTime}");
         //foreach (var p in SimulationModel.Points.Where(p => p.Value.PedestriansFlow is not null))
         //{
-        //    if (p.Value.PedestriansOnTheRoad != 0.0 ||p.Value.NumberOfPedestrians != 0.0)
+        //    if (p.Value.PedestriansOnTheRoad != 0.0 || p.Value.NumberOfPedestrians != 0.0)
         //        Console.WriteLine($"Pedestrians: {p.Key} - {p.Value.PedestriansOnTheRoad} - {p.Value.NumberOfPedestrians}");
         //}
         //foreach (var )
@@ -66,34 +82,17 @@ public class Simulation
         throw new NotImplementedException();
     }
 
-    private void ChangeTrafficLightState(TrafficLight? trafficLight, int endOfAction)
+    #region Traffic lights
+    private void ChangeTrafficLightState(TrafficLight? trafficLight, int endTime)
     {
-        ArgumentNullException.ThrowIfNull(trafficLight);
-
-        // !!! MOVE TO TrafficLight CLASS METHOD !!!
-        if (trafficLight.CurrentState == TrafficLightState.Green)
-        {
-            trafficLight.PreviousState = TrafficLightState.Green;
-            trafficLight.CurrentState = TrafficLightState.Yellow;
-        }
-        else if (trafficLight.CurrentState == TrafficLightState.Red)
-        {
-            trafficLight.PreviousState = TrafficLightState.Red;
-            trafficLight.CurrentState = TrafficLightState.Yellow;
-        }
-        else
-        {
-            trafficLight.CurrentState = trafficLight.PreviousState == TrafficLightState.Green ? TrafficLightState.Red : TrafficLightState.Green;
-            trafficLight.PreviousState = TrafficLightState.Yellow;
-        }
-
+        trafficLight!.ChangeTrafficLightState();
         //Console.WriteLine($"Traffic light changed Color from {trafficLight.PreviousState} to {trafficLight.CurrentState}, Event was created at {EndOfAction} at edge {trafficLight.EdgeId}");
         //Console.WriteLine();
         //foreach (var tr in SimulationModel.TrafficLights)
         //{
         //    Console.WriteLine($"Traffic light: {tr.EdgeId,-30}, Color: {tr.CurrentState} at {EndOfAction}");
         //}
-        var endOfNext = endOfAction + trafficLight.States[trafficLight.CurrentState];
+        var endOfNext = endTime + trafficLight.States[trafficLight.CurrentState];
         if (endOfNext >= simulationTime)
             return;
         _trafficLightQueue[endOfNext].Add(new Event()
@@ -101,11 +100,11 @@ public class Simulation
             Action = () => ChangeTrafficLightState(trafficLight, endOfNext),
             Duration = trafficLight.States[trafficLight.CurrentState],
             EndTime = endOfNext,
-            StartTime = endOfAction,
-            Type = "TrafficLight"
+            StartTime = endTime,
+            Type = EventsType.TrafficLightSwitch
         });
     }
-
+    #endregion
 
 
     public void SetUpFirstEvents()
@@ -121,33 +120,16 @@ public class Simulation
                 Duration = trafficLight.States[trafficLight.CurrentState],
                 EndTime = endOfNext,
                 StartTime = 0,
-                Type = "TrafficLight"
+                Type = EventsType.TrafficLightSwitch
             });
         }
 
-        // !!! REPLACED !!!
-        /*        var pedestrianFlows = SimulationModel.Points.Where(p => p.Value.PedestriansFlow is not null).ToList();
-                var pedestrianFlowsList = new List<List<Point>>();
 
-                while (pedestrianFlows.Count > 0)
-                {
-                    var point = pedestrianFlows.First().Value;
-                    var points = pedestrianFlows
-                        .Where(p => p.Value.PedestriansFlow!.Equals(point.PedestriansFlow))
-                        .ToList();
-                    pedestrianFlowsList.Add(points.Select(p => p.Value).ToList());
-                    foreach (var p in points)
-                    {
-                        pedestrianFlows.Remove(p);
-                    }
-                }*/
-        // !!! REPLACED !!!
         var pedestrianFlowsList = SimulationModel.Points
             .Where(p => p.Value.PedestriansFlow is not null)
             .GroupBy(p => p.Value.PedestriansFlow)
             .Select(group => group.Select(p => p.Value).ToList())
             .ToList();
-        // !!! REPLACED !!!
 
         foreach (var points in pedestrianFlowsList)
         {
@@ -158,11 +140,25 @@ public class Simulation
                 Duration = 1,
                 StartTime = 0,
                 EndTime = 1,
-                Type = "Pedestrian"
+                Type = EventsType.PedestrianGenerate
             });
         }
-    }
 
+        foreach (var flow in SimulationModel.Flows)
+        {
+            _vehicleQueue[1].Add(new Event()
+            {
+                Action = () =>GenerateVehicles(flow,1),
+                Duration = 1,
+                StartTime = 0,
+                EndTime = 1,
+                Type = EventsType.VehicleGenerate
+            });
+        }
+
+
+    }
+    #region Pedestrians
     public void GeneratePedestrian(List<Point> crosswalk, int endTime)
     {
         var endOfNext = endTime + 1;
@@ -174,7 +170,7 @@ public class Simulation
             Duration = 1,
             StartTime = endTime,
             EndTime = endTime + 1,
-            Type = "Pedestrian"
+            Type = EventsType.PedestrianGenerate
         });
 
         var flow = crosswalk
@@ -182,7 +178,6 @@ public class Simulation
             .Where(p => p.Key.Hour * 60 * 60 + p.Key.Minute * 60 + p.Key.Second <= endTime)
             .Select(p => p.Value)
             .LastOrDefault();
-        //Console.WriteLine($"Current flow generated: {flow.Value} for point: {points.Id} at {EndTime}");
 
         if (flow is null || flow.Value == 0)
         {
@@ -195,10 +190,9 @@ public class Simulation
 
         if (isPossibleToCross)
         {
-            var rand = new Random();
             foreach (var point in crosswalk)
             {
-                point.NumberOfPedestrians += flow.Value/60.0;
+                point.NumberOfPedestrians += flow.Value / 60.0;
             }
 
             if (crosswalk[0].NumberOfPedestrians >= 1.0)
@@ -209,10 +203,10 @@ public class Simulation
                     point.NumberOfPedestrians = point.NumberOfPedestrians - (int)point.NumberOfPedestrians;
                 }
             }
-            
+
             for (int i = 0; i < crosswalk[0].PedestriansOnTheRoad; i++)
             {
-                var crossingTime = rand.Next(5, 10) * crosswalk.Count;
+                var crossingTime = _random.Next(5, 10) * crosswalk.Count;
                 endOfNext = endTime + crossingTime;
                 if (endOfNext >= simulationTime)
                     return;
@@ -222,7 +216,7 @@ public class Simulation
                     Duration = crossingTime,
                     EndTime = endOfNext,
                     StartTime = endTime,
-                    Type = "Pedestrian"
+                    Type = EventsType.PedestrianCross
                 });
             }
         }
@@ -230,7 +224,7 @@ public class Simulation
         {
             foreach (var point in crosswalk)
             {
-                point.NumberOfPedestrians += flow.Value/60.0;
+                point.NumberOfPedestrians += flow.Value / 60.0;
             }
             endOfNext = endTime + 1;
             if (endOfNext >= simulationTime)
@@ -241,13 +235,9 @@ public class Simulation
                 Duration = 1,
                 EndTime = endOfNext,
                 StartTime = endTime,
-                Type = "Pedestrian"
+                Type = EventsType.PedestrianTryCross
             });
         }
-        //Console.WriteLine();
-
-       
-        //Console.WriteLine("")
     }
 
     public void StartCrossTheRoad(List<Point> crosswalk, List<TrafficLight> trafficLights, int EndTime)
@@ -261,11 +251,10 @@ public class Simulation
                 point.PedestriansOnTheRoad += (int)point.NumberOfPedestrians;
             }
 
-            var rand = new Random();
 
             for (int i = 0; i < crosswalk.FirstOrDefault()?.NumberOfPedestrians; i++)
             {
-                var crossingTime = rand.Next(5, 10) * crosswalk.Count;
+                var crossingTime = _random.Next(5, 10) * crosswalk.Count;
                 var endOfNext = EndTime + crossingTime;
                 if (endOfNext >= simulationTime)
                     return;
@@ -275,7 +264,7 @@ public class Simulation
                     Duration = crossingTime,
                     EndTime = endOfNext,
                     StartTime = EndTime,
-                    Type = "Pedestrian"
+                    Type = EventsType.PedestrianCross
                 });
             }
             foreach (var point in crosswalk)
@@ -295,7 +284,7 @@ public class Simulation
                 Duration = 1,
                 EndTime = endOfNext,
                 StartTime = EndTime,
-                Type = "Pedestrian"
+                Type = EventsType.PedestrianTryCross
             });
         }
     }
@@ -310,7 +299,242 @@ public class Simulation
             }
             point.PedestriansOnTheRoad--;
         }
-       
+
     }
+    #endregion
+
+    #region Vehicles
+    public void GenerateVehicles(Flow flow, int endTime)
+    {
+        var nextTime = endTime + 1;
+        if (nextTime >= simulationTime)
+            return;
+        _vehicleQueue[nextTime].Add(new Event()
+        {
+            Action = () => GenerateVehicles(flow, nextTime),
+            Duration = 1,
+            EndTime = nextTime,
+            StartTime = endTime,
+            Type = EventsType.VehicleGenerate
+        });
+        var generatedNumber = flow
+           .Density
+           .Where(p => p.Key.Hour * 60 * 60 + p.Key.Minute * 60 + p.Key.Second <= endTime)
+           .Select(p => p.Value)
+           .LastOrDefault();
+
+        if (generatedNumber == 0)
+        {
+            return;
+        }
+        var destEdge = SimulationModel
+            .Edges
+            .FirstOrDefault(e => e.StartPointId == flow.PointId);
+        flow.VehiclesInQueue += generatedNumber / 60.0;
+        var carSize = double.Round(_random.NextDouble(), 1) + 4.0;
+        if (flow.VehiclesInQueue >= 1.0)
+        {
+
+            var possibleRoutes = SimulationModel
+                    .Routes
+                    .Where(r => r[0].Id == flow.PointId)
+                    .ToList();
+            var generated = 0;
+            for (int i = 0; i < (int)flow.VehiclesInQueue; i++)
+            {
+                if (destEdge!.CheckIfEdgeIsFree(carSize))
+                {
+                    var randomRouteIndex = _random.Next(0, possibleRoutes.Count + 1);
+                    var route = SimulationModel.Routes[randomRouteIndex];
+                    var vehicle = destEdge.AddVehicle(carSize, route);
+                    nextTime = endTime + 1;
+                    if (nextTime >= simulationTime)
+                        return;
+                    _vehicleQueue[nextTime].Add(new Event()
+                    {
+                        Action = () => MoveVehicle(vehicle, destEdge, nextTime),
+                        Duration = 1,
+                        EndTime = nextTime,
+                        StartTime = endTime,
+                        Type = EventsType.VehicleMove
+                    });
+                    generated++;
+                }
+                else
+                {
+
+                    nextTime = endTime + 1;
+                    if (nextTime >= simulationTime)
+                        return;
+                    _vehicleQueue[nextTime].Add(new Event()
+                    {
+                        Action = () => VehicleWaitGenerate(flow, destEdge, nextTime),
+                        Duration = 1,
+                        EndTime = nextTime,
+                        StartTime = endTime,
+                        Type = EventsType.VehicleWaitGenerate
+                    });
+                }
+            }
+
+            flow.VehiclesInQueue -= generated;
+
+
+
+        }
+
+    }
+
+    public void VehicleToNext(Vehicle vehicle, Edge lastEdge, Edge nextEdge, int endTime)
+    {
+        var nextTime = endTime + 1;
+        if (nextTime >= simulationTime)
+            return;
+        if (nextEdge.CheckIfEdgeIsFree(vehicle.CarSize))
+        {
+            lastEdge.RemoveVehicle();
+            nextEdge.AddVehicle(vehicle);
+            _vehicleQueue[nextTime].Add(new Event()
+            {
+                Action = () => MoveVehicle(vehicle, nextEdge, nextTime),
+                Duration = 1,
+                EndTime = nextTime,
+                StartTime = endTime,
+                Type = EventsType.VehicleMove
+            });
+
+        }
+        else
+        {
+            _vehicleQueue[nextTime].Add(new Event()
+            {
+                Action = () => VehicleToNext(vehicle,lastEdge, nextEdge, nextTime),
+                Duration = 1,
+                EndTime = nextTime,
+                StartTime = endTime,
+                Type = EventsType.VehicleToNext
+            });
+        }
+    }
+
+    public void MoveVehicle(Vehicle vehicle, Edge edge, int endTime)
+    {
+        if (vehicle.FrontCar is not null)
+        {
+
+            if (vehicle.TillEnd - vehicle.FrontCar?.TillEnd >= edge.Speed)
+            {
+                vehicle.TillEnd -= edge.Speed;
+            }
+
+            var nextTime = endTime + 1;
+            if (nextTime >= simulationTime)
+                return;
+            _vehicleQueue[nextTime].Add(new Event()
+            {
+                Action = () => MoveVehicle(vehicle, edge, nextTime),
+                Duration = 1,
+                EndTime = nextTime,
+                StartTime = endTime,
+                Type = EventsType.VehicleMove
+            });
+
+        }
+        else
+        {
+            var nextTime = endTime + 1;
+            if (nextTime >= simulationTime)
+                return;
+            if (vehicle.TillEnd > 0.0)
+            {
+                vehicle.TillEnd -= edge.Speed;
+                _vehicleQueue[nextTime].Add(new Event()
+                {
+                    Action = () => MoveVehicle(vehicle, edge, nextTime),
+                    Duration = 1,
+                    EndTime = nextTime,
+                    StartTime = endTime,
+                    Type = EventsType.VehicleMove
+                });
+            }
+            else
+            {
+                var nextPoint = vehicle.GetNextPoint();
+                var nextEdge = vehicle.GetNextEdge();
+                if (nextPoint is null || nextEdge is null)
+                {
+                    vehicle = null;
+                    edge.RemoveVehicle();
+                    return;
+                }
+                if (nextPoint.IsPossibleToDrive() && nextEdge.IsPossibleToDrive())
+                {
+                    _vehicleQueue[nextTime].Add(new Event()
+                    {
+                        Action = () => VehicleToNext(vehicle, edge, nextEdge, nextTime),
+                        Duration = 1,
+                        EndTime = nextTime,
+                        StartTime = endTime,
+                        Type = EventsType.VehicleToNext
+                    });
+
+                }
+                else
+                {
+                    _vehicleQueue[nextTime].Add(new Event()
+                    {
+                        Action = () => MoveVehicle(vehicle, edge, nextTime),
+                        Duration = 1,
+                        EndTime = nextTime,
+                        StartTime = endTime,
+                        Type = EventsType.VehicleWaitNext
+                    });
+                }
+
+            }
+        }
+
+    }
+
+    public void VehicleWaitGenerate(Flow flow, Edge destEdge, int endTime)
+    {
+        var carSize = double.Round(_random.NextDouble(), 1) + 4.0;
+        if (destEdge!.CheckIfEdgeIsFree(carSize))
+        {
+            var possibleRoutes = SimulationModel
+                  .Routes
+                  .Where(r => r[0].Id == flow.PointId);
+            var randomRouteIndex = _random.Next(0, possibleRoutes.Count());
+            var route = SimulationModel.Routes[randomRouteIndex];
+            var vehicle = destEdge.AddVehicle(carSize, route);
+            var nextTime = endTime + 1;
+            if (nextTime >= simulationTime)
+                return;
+            _vehicleQueue[nextTime].Add(new Event()
+            {
+                Action = () => MoveVehicle(vehicle, destEdge, nextTime),
+                Duration = 1,
+                EndTime = nextTime,
+                StartTime = endTime,
+                Type = EventsType.VehicleMove
+            });
+        }
+        else
+        {
+
+            var nextTime = endTime + 1;
+            if (nextTime >= simulationTime)
+                return;
+            _vehicleQueue[nextTime].Add(new Event()
+            {
+                Action = () => VehicleWaitGenerate(flow, destEdge, nextTime),
+                Duration = 1,
+                EndTime = nextTime,
+                StartTime = endTime,
+                Type = EventsType.VehicleWaitGenerate
+            });
+        }
+    }
+    #endregion
 
 }

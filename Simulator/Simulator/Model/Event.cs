@@ -1,8 +1,10 @@
-﻿namespace Simulator.Model;
+﻿using Simulator.Model.Enums;
 
-public class Event
+namespace Simulator.Model;
+
+internal class Event
 {
-    public string Type { get; set; }
+    public EventsType Type { get; set; }
     public int StartTime { get; set; }
     public int EndTime { get; set; }
     public int Duration { get; set; }

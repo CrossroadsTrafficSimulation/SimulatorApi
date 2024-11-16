@@ -19,4 +19,13 @@ public class Point()
         Flow = flow;
         PedestriansFlow = pedestriansFlow;
     }
+
+    public bool IsPossibleToDrive()
+    {
+        if (PedestriansOnTheRoad < 1.0)
+        {
+            return true;
+        }
+        return false;
+    }
 }

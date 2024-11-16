@@ -31,7 +31,7 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
         {
             simulation.ProcessTrafficLights(currentTime);
             simulation.ProcessPedestrians(currentTime);
-            //simulation.ProcessVehicles(currentTime);
+            simulation.ProcessVehicles(currentTime);
         }
         watch.Stop();
         Console.WriteLine($"Done: {watch.ElapsedMilliseconds}");
