@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Simulator.Services.Interface;
+using Simulator.Model.Dtos.Request;
 using Simulator.Utils.SimulationParamsGenerators.Implementation;
 using System.Diagnostics;
 
@@ -12,12 +13,12 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
     [HttpPost]
     [Route("run")]
     public IActionResult RunSimulation(
-        //[FromBody] SimulationParamsRequestTo simulationParams
+        [FromBody] SimulationParamsRequestTo simulationParams
         )
     {
         Console.WriteLine(new SimulationParamsGeneratorOne().GetSimulationParamsJson());
-        var simulationParams = new SimulationParamsGeneratorOne().GetSimulationParams();
-        simulationService.SetUpSimulations(simulationParams);
+        var simulationParamsArtifitial = new SimulationParamsGeneratorOne().GetSimulationParams();
+        simulationService.SetUpSimulations(simulationParamsArtifitial);
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
