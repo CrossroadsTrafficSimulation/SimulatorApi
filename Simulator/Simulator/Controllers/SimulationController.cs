@@ -16,18 +16,18 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
         //[FromBody] SimulationParamsRequestTo simulationParams
         )
     {
-        Console.WriteLine(new SimulationParamsGeneratorOne().GetSimulationParamsJson());
-        var simulationParams = new SimulationParamsGeneratorOne().GetSimulationParams();
+        Console.WriteLine(new SimulationParamsGenertorOneCrossing().GetSimulationParamsJson());
+        var simulationParams = new SimulationParamsGenertorOneCrossing().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
         _ = simulationService.SimulateTraffic();
-        
+
         stopwatch.Stop();
         Console.WriteLine($"TOTAL: {stopwatch.Elapsed}");
-        
+
         return Ok();
     }
 }

@@ -6,7 +6,7 @@ public class TrafficLight()
 {
     public Dictionary<TrafficLightState, int> States { get; set; } = [];
     public TrafficLightState CurrentState { get; set; }
-    public TrafficLightState PreviousState {  get; set; } 
+    public TrafficLightState PreviousState { get; set; }
     public Edge Edge { get; set; } = null!;
     public string EdgeId { get; set; } = null!;
 

@@ -9,8 +9,11 @@ public class Point()
     public List<TrafficLight> TrafficLights { get; set; } = [];
     public Flow Flow { get; set; } = null!;
     public TimeDensity? PedestriansFlow { get; set; } = null;
+    /// <summary>
+    /// NumberOfPedestrians
+    /// </summary>
     public double PedestriansQueueCount { get; set; } = 0.0;
-    public double CrossingPedestriansCount { get; set; } = 0.0;
+    public double PedestriansOnTheRoadCount { get; set; } = 0.0;
 
     public Point(string id, List<Edge> edges, Flow flow, TimeDensity? pedestriansFlow) : this()
     {
@@ -22,6 +25,6 @@ public class Point()
 
     public bool IsPossibleToDriveThrough()
     {
-        return CrossingPedestriansCount < 1.0;
+        return PedestriansOnTheRoadCount < 1.0;
     }
 }

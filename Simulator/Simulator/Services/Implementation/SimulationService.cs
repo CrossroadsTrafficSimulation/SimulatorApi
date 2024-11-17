@@ -9,11 +9,11 @@ namespace Simulator.Services.Implementation;
 
 public class SimulationService(IMapper mapper, IModelPreparationService preparationService) : ISimulationService
 {
-    private readonly List<Simulation> _simulations = new List<Simulation>();
+    private readonly List<Simulation> _simulations = [];
     private const int SimulationTime = 24 * 60 * 60;
     public void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 5)
     {
-        var rand = new Random();
+        _ = new Random();
         for (int i = 0; i < simulationQuantity; i++)
         {
             _simulations.Add(new Simulation()
