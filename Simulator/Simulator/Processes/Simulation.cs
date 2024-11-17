@@ -8,7 +8,7 @@ namespace Simulator.Processes;
 
 public class Simulation
 {
-    private const int SimulationTime = 2 * 60 * 60;
+    private const int SimulationTime = 24 * 60 * 60;
     public SimulationModel SimulationModel { get; set; } = null!;
     private readonly List<Event>[] _trafficLightQueue = new List<Event>[SimulationTime];
     private readonly List<Event>[] _pedestrianQueue = new List<Event>[SimulationTime];
@@ -29,6 +29,17 @@ public class Simulation
     {
         _vehicleQueue[currentTime].ForEach(e => e.Action());
         _vehicleQueue[currentTime].Clear();
+        //Console.WriteLine($"Current time: {currentTime}");
+        //foreach (var edge in SimulationModel.Edges)
+        //{
+        //    if (edge.Vehicles.Count != 0)
+        //    Console.WriteLine($"Edge id: {edge.Id} contains {edge.Vehicles.Count} vehicles with car length: {edge.SumCarsLength}");
+        //}
+        //foreach (var flow in SimulationModel.Flows)
+        //{
+        //    Console.WriteLine($"Flow id: {flow.PointId} contains {flow.VehiclesInQueue} vehicles");
+        //}
+        //Console.WriteLine();
     }
 
     public void ProcessTrafficLights(int currentTime)
@@ -39,8 +50,24 @@ public class Simulation
 
     public void ProcessPedestrians(int currentTime)
     {
+        Console.WriteLine();
+        Console.WriteLine($"Current time: {currentTime}");
+        var vehEvents = _vehicleQueue[currentTime].GroupBy(e => e.Type).ToList();
+        foreach (var vehEvent in vehEvents)
+        {
+            Console.WriteLine($"Type: {vehEvent.Key.ToString()}, quantity: {vehEvent.Count()}");
+        }
+        //Console.WriteLine($"Number of vehicle events: {_vehicleQueue[currentTime].Count}");
+
         _pedestrianQueue[currentTime].ForEach(e => e.Action());
         _pedestrianQueue[currentTime].Clear();
+      
+        foreach (var p in SimulationModel.Points.Where(p => p.Value.PedestriansFlow is not null))
+        {
+            if (p.Value.PedestriansOnTheRoadCount != 0.0 || p.Value.PedestriansQueueCount != 0.0)
+                Console.WriteLine($"Pedestrians: {p.Key} - {p.Value.PedestriansOnTheRoadCount} - {p.Value.PedestriansQueueCount}");
+        }
+       
     }
 
     public void SetUpFirstEvents()
