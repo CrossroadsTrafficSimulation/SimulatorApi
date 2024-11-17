@@ -1,6 +1,6 @@
 ﻿namespace Simulator.Model.Enums;
 
-internal enum EventsType
+internal enum EventType
 {
     TrafficLightSwitch,
     PedestrianCross,
@@ -8,8 +8,6 @@ internal enum EventsType
     PedestrianTryCross,
     VehicleGenerate,
     VehicleMove,
-    VehicleWaitNext,
-    VehicleWaitGenerate,
-    VehicleToNext
+    VehicleNextEdge,
+    VehicleAddGenerated
 }
-

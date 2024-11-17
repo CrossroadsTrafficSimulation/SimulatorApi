@@ -18,7 +18,7 @@ public class TrafficLight()
         EdgeId = edge.Id;
     }
 
-    public void ChangeTrafficLightState()
+    public void SwitchState()
     {
         if (CurrentState == TrafficLightState.Green)
         {
@@ -36,6 +36,4 @@ public class TrafficLight()
             PreviousState = TrafficLightState.Yellow;
         }
     }
-
-   
 }

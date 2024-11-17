@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Simulator.Model.Dtos.Request;
 using Simulator.Services.Interface;
 using Simulator.Utils.SimulationParamsGenerators.Implementation;
 using System.Diagnostics;
@@ -25,7 +26,7 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
         _ = simulationService.SimulateTraffic();
         
         stopwatch.Stop();
-        Console.WriteLine(stopwatch.Elapsed);
+        Console.WriteLine($"TOTAL: {stopwatch.Elapsed}");
         
         return Ok();
     }

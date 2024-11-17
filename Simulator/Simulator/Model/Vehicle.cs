@@ -1,50 +1,63 @@
-﻿namespace Simulator.Model;
-
-using Simulator.Model.Entites;
+﻿using Simulator.Model.Entites;
 using Route = System.Collections.Generic.List<Simulator.Model.Entites.Point>;
 
+namespace Simulator.Model;
 public class Vehicle
 {
     public Route Route { get; set; } = null!;
-    public double CarSize { get; set; } = 0.0;
-    public double TillEnd { get; set; } = 0.0;
-    public Vehicle? FrontCar { get; set; } = null;
-    public int CurrentPoint { get; set; } = 0;
+    public double Size { get; set; } = 0.0;
+    public int CurrentRoutePos { get; set; } = 0;
     public string? CurrentEdgeId { get; set; } = null;
 
-    public Point? GetNextPoint()
-    {
-        CurrentPoint++;
-        if (CurrentPoint < Route.Count - 1)
-        {
-            return Route[CurrentPoint];
-        }
+    public Point? CurrentPoint => CurrentRoutePos <= Route.Count ? Route[CurrentRoutePos] : null;
 
-        return null;
+    public Edge? CurrentEdge
+    {
+        get
+        {
+            if (CurrentRoutePos >= Route.Count - 1)
+            {
+                return null;
+            }
+
+            var startPoint = Route[CurrentRoutePos];
+            var endPoint = Route[CurrentRoutePos + 1];
+
+            return startPoint.Edges.FirstOrDefault(e => e.StartPointId == startPoint.Id && e.EndPointId == endPoint.Id);
+        }
     }
 
-    public Point? GetCurrentPoint()
+    public Edge? NextEdge
     {
-        if (CurrentPoint <= Route.Count)
+        get
         {
-            return Route[CurrentPoint];
+            if (CurrentRoutePos + 1 >= Route.Count - 1)
+            {
+                return null;
+            }
+
+            var startPoint = Route[CurrentRoutePos + 1];
+            var endPoint = Route[CurrentRoutePos + 2];
+
+            return startPoint.Edges.FirstOrDefault(e => e.StartPointId == startPoint.Id && e.EndPointId == endPoint.Id);
         }
-        return null;
     }
 
-    public Edge? GetNextEdge()
+    public bool IsLastPoint => CurrentRoutePos >= Route.Count - 1;
+
+    public bool TryDriveThrough()
     {
-        if (CurrentPoint < Route.Count - 1)
+        if (CurrentRoutePos >= Route.Count - 1)
         {
-            var startPoint = Route[CurrentPoint];
-            var endPoint = Route[CurrentPoint + 1];
-            return startPoint
-                        .Edges
-                        .FirstOrDefault(e => e.StartPointId == startPoint.Id
-                                             && e.EndPointId == endPoint.Id);
+            return false;
         }
 
-        return null;
-    }
+        var res = CurrentPoint!.IsPossibleToDriveThrough() && CurrentEdge!.IsAllowedToDriveThrough(Size);
+        if (res)
+        {
+            CurrentRoutePos++;
+        }
 
+        return res;
+    }
 }
