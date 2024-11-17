@@ -10,7 +10,7 @@ public class SimulationParamsGenertorOneCrossing : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {
-        // Points
+        #region Points
         List<PointRequestTo> points = [];
         // Left
 
@@ -35,27 +35,27 @@ public class SimulationParamsGenertorOneCrossing : ISimulationParamsGenerator
         var rightFlowDest = new PointRequestTo("Right Dest");
 
         points.AddRange([leftFlowSource, rightFlowSource, leftFlowDest, rightFlowDest]);
-        // Points end
+        #endregion
 
-        // Pedestrian flows
+        #region Pedestrian flows
         List<PedestrianFlowRequestTo> pedestrianFlows = [];
 
         var leftPedestriansSource = new PedestrianFlowRequestTo([leftBottomPoint.Id, leftTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 4.0 },
-            { new TimeOnly(hour: 1, minute: 0, second: 0), 40.0 }
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 0.0 },
+            { new TimeOnly(hour: 1, minute: 0, second: 0), 0.0 }
         });
 
         var rightPedestrianSource = new PedestrianFlowRequestTo([rightBottomPoint.Id, rightTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 5.0 },
-            { new TimeOnly(hour: 1, minute: 0, second: 0), 50.0 }
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 0.0 },
+            { new TimeOnly(hour: 1, minute: 0, second: 0), 0.0 }
         });
 
         pedestrianFlows.AddRange([rightPedestrianSource, leftPedestriansSource]);
-        // Pedestrian flows end
+        #endregion
 
-        // Edges
+        #region Edges
         List<EdgeRequestTo> edges = [];
 
         const double speed = 10.0;
@@ -82,9 +82,9 @@ public class SimulationParamsGenertorOneCrossing : ISimulationParamsGenerator
 
         edges.AddRange([leftSourceToLeftBottom, leftTopToLeftDest, rightBottomToRightDest, rightSourceToRightTop, leftBottomToRightBottom, 
             rightTopToLeftTop]);
-        // Edges end
+        #endregion
 
-        // Routes
+        #region Routes
         List<RouteRequestTo> routes = [];
 
         routes.AddRange(
@@ -92,25 +92,25 @@ public class SimulationParamsGenertorOneCrossing : ISimulationParamsGenerator
                 [leftFlowSource.Id, leftBottomPoint.Id, rightBottomPoint.Id, rightFlowDest.Id],
                 [rightFlowSource.Id, rightTopPoint.Id, leftTopPoint.Id, leftFlowDest.Id],
              ]);
-        // Routes end
+        #endregion
 
-        // Flows
+        #region Vehicle flows
         List<FlowRequestTo> flows = [];
 
         flows.AddRange(
             [
                 new FlowRequestTo(leftFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 2.0 },
-                    { new TimeOnly(hour: 1, minute: 0, second: 0), 4.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 },
+                    { new TimeOnly(hour: 1, minute: 0, second: 0), 2.0 }
                 }),
                 new FlowRequestTo(rightFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 8.0 },
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 },
                     { new TimeOnly(hour: 1, minute: 0, second: 0), 2.0 }
                 })
             ]);
-        // Flows end
+        #endregion
 
         return new SimulationParamsRequestTo(points, edges, flows, routes, pedestrianFlows);
     }

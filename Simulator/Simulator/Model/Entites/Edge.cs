@@ -32,7 +32,11 @@ public class Edge()
 
     public bool IsAllowedToDriveThrough(double carSize)
     {
-        return IsFree(carSize) && TrafficLight?.CurrentState == Enums.TrafficLightState.Green;
+        if (TrafficLight is null)
+        {
+            return IsFree(carSize);
+        }
+        return IsFree(carSize) && TrafficLight.CurrentState == Enums.TrafficLightState.Green;
     }
 
     public bool TryEnqueueVehicle(Vehicle vehicle)
@@ -48,16 +52,19 @@ public class Edge()
         return false;
     }
 
-    public Vehicle DequeueVehicle()
+    public bool TryDequeueVehicle(out Vehicle? vehicle)
     {
-        var vehicle = Vehicles.Dequeue();
-        SumCarsLength -= vehicle.Size;
-
-        if (SumCarsLength < 0)
+        var res = Vehicles.TryDequeue(out vehicle);
+        if (res)
         {
-            SumCarsLength = 0;
+            SumCarsLength -= vehicle!.Size;
+
+            if (SumCarsLength < 0)
+            {
+                SumCarsLength = 0;
+            }
         }
 
-        return vehicle;
+        return res;
     }
 }

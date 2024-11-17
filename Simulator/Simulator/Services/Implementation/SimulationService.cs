@@ -10,13 +10,13 @@ namespace Simulator.Services.Implementation;
 public class SimulationService(IMapper mapper, IModelPreparationService preparationService) : ISimulationService
 {
     private readonly List<Simulation> _simulations = [];
-    private const int SimulationTime = 24 * 60 * 60;
-    public void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 5)
+    private const int SimulationTime = 1 * 60 * 60 / 8;
+    public void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 1)
     {
         _ = new Random();
         for (int i = 0; i < simulationQuantity; i++)
         {
-            _simulations.Add(new Simulation()
+            _simulations.Add(new Simulation(SimulationTime)
             {
                 SimulationModel = preparationService.GetSimulationModel(simulationParams)
             });

@@ -47,6 +47,8 @@ public class Vehicle
 
     public bool TryDriveThrough()
     {
+        Console.WriteLine($"Driving through: {CurrentRoutePos}, to {CurrentRoutePos + 1} size {Route.Count} pedestrians {CurrentPoint!.IsPossibleToDriveThrough()}, allowed {CurrentEdge!.IsAllowedToDriveThrough(Size)}");
+
         if (CurrentRoutePos >= Route.Count - 1)
         {
             return false;
@@ -56,7 +58,7 @@ public class Vehicle
         if (res)
         {
             CurrentRoutePos++;
-        }
+        } 
 
         return res;
     }
