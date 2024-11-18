@@ -5,6 +5,6 @@ namespace Simulator.Services.Interface;
 
 public interface ISimulationService
 {
-    void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 1);
+    void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity = 5);
     List<SimulationResponseTo> SimulateTraffic();
 }
