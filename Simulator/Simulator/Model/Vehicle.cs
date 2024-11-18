@@ -43,7 +43,7 @@ public class Vehicle
         }
     }
 
-    public bool IsLastPoint => CurrentRoutePos >= Route.Count - 1;
+    public bool IsLastPoint => NextEdge is null;
 
     public bool TryDriveThrough()
     {

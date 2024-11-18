@@ -338,16 +338,18 @@ public class Simulation
 
             if (eventEndsAt < _simulationTime)
             {
-                // Add time here to simulate the delay from the queue
-                var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
-                    () => ToNextEdge(vehicle.CurrentEdge, vehicle.NextEdge!, eventEndsAt));
-                _vehicleQueue[eventEndsAt].Add(enqueue);
+                if (!vehicle.IsLastPoint)
+                {
+                    var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
+                        () => ToNextEdge(vehicle.CurrentEdge, vehicle.NextEdge!, eventEndsAt));
+                    _vehicleQueue[eventEndsAt].Add(enqueue);
+                }
+                else
+                {
+                    // PROCESS LAST POINT
+                    Console.WriteLine($"____!!!Is in last point");
+                }
             }
-        }
-        // If last point, then vehicle is deleted
-        else if (vehicle.IsLastPoint)
-        {
-            Console.WriteLine($"____!!!Is in last point");
         }
         // Red traffic light or pedestrians
         else
