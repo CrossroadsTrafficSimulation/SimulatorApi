@@ -297,7 +297,7 @@ public class Simulation
 
             if (spawnEdge.TryEnqueueVehicle(vehicle))
             {
-                Console.WriteLine($"Enqueued {spawnEdge.Vehicles.Count}");
+                Console.WriteLine($"Enqueued {spawnEdge.Vehicles.Count} to {spawnEdge.Id}");
                 // Add time here to simulate the delay from the queue
                 MoveVehicle(vehicle, eventStartsAt);
                 //ScheduleMoveEvent(eventStartsAt, eventEndsAt, vehicle.CurrentEdge!, vehicle.NextEdge!);
@@ -331,16 +331,16 @@ public class Simulation
         {
             var originalColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Moved to {vehicle!.CurrentEdge!.Id}");
+            Console.WriteLine($"Moved to {vehicle!.CurrentEdge!.StartPoint.Id}");
             Console.ForegroundColor = originalColor;
 
-            eventEndsAt = eventStartsAt + (int)Math.Ceiling(vehicle.CurrentEdge!.Distance / vehicle.NextEdge!.SpeedLimit);
+            eventEndsAt = eventStartsAt + (int)Math.Ceiling(vehicle.CurrentEdge!.Distance / vehicle.CurrentEdge!.SpeedLimit);
 
             if (eventEndsAt < _simulationTime)
             {
                 // Add time here to simulate the delay from the queue
                 var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
-                    () => ToNextEdge(vehicle.CurrentEdge, vehicle.NextEdge, eventEndsAt));
+                    () => ToNextEdge(vehicle.CurrentEdge, vehicle.NextEdge!, eventEndsAt));
                 _vehicleQueue[eventEndsAt].Add(enqueue);
             }
         }
@@ -361,7 +361,7 @@ public class Simulation
         var originalColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Blue;
 
-        Console.WriteLine($"Trying to switch edge from to {currEdge.Id} to {nextEdge.Id}");
+        //Console.WriteLine($"Trying to switch edge from to {currEdge.Id} to {nextEdge.Id}");
 
         var eventEndsAt = eventStartsAt + 1;
         if (eventEndsAt >= _simulationTime)
@@ -369,9 +369,11 @@ public class Simulation
             return;
         }
 
+        Console.WriteLine($"Trying to dequeue from {currEdge.Id}");
         if (currEdge.TryDequeueVehicle(out var vehicle))
         {
             Console.WriteLine($"Deque");
+            vehicle!.CurrentRoutePos++;
             // Add time here to simulate the delay from the queue
             nextEdge.TryEnqueueVehicle(vehicle!);
             ScheduleMoveEvent(eventStartsAt, eventEndsAt, vehicle!);

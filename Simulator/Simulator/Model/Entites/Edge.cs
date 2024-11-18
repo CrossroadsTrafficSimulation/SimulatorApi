@@ -25,7 +25,7 @@ public class Edge()
         TrafficLight = trafficLight;
     }
 
-    public bool IsFree(double carSize)
+    public bool IsEdgeFree(double carSize)
     {
         return SumCarsLength + carSize < Distance || Vehicles.Count == 0;
     }
@@ -34,14 +34,14 @@ public class Edge()
     {
         if (TrafficLight is null)
         {
-            return IsFree(carSize);
+            return IsEdgeFree(carSize);
         }
-        return IsFree(carSize) && TrafficLight.CurrentState == Enums.TrafficLightState.Green;
+        return IsEdgeFree(carSize) && TrafficLight.CurrentState == Enums.TrafficLightState.Green;
     }
 
     public bool TryEnqueueVehicle(Vehicle vehicle)
     {
-        if (IsFree(vehicle.Size))
+        if (IsEdgeFree(vehicle.Size))
         {
             Vehicles.Enqueue(vehicle);
             SumCarsLength += vehicle.Size;

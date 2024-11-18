@@ -47,18 +47,19 @@ public class Vehicle
 
     public bool TryDriveThrough()
     {
-        Console.WriteLine($"Driving through: {CurrentRoutePos}, to {CurrentRoutePos + 1} size {Route.Count} pedestrians {CurrentPoint!.IsPossibleToDriveThrough()}, allowed {CurrentEdge!.IsAllowedToDriveThrough(Size)}");
+        Console.WriteLine($"Driving through: {CurrentRoutePos}, to {CurrentRoutePos + 1} size {Route.Count} no pedestrians {CurrentPoint!.IsPossibleToDriveThrough()}, allowed {CurrentEdge!.IsAllowedToDriveThrough(Size)}");
 
-        if (CurrentRoutePos >= Route.Count - 1)
+        // Route.Count == 4 => 3 edges
+        if (CurrentRoutePos + 1 >= Route.Count - 1)
         {
             return false;
         }
 
         var res = CurrentPoint!.IsPossibleToDriveThrough() && CurrentEdge!.IsAllowedToDriveThrough(Size);
-        if (res)
+/*        if (res)
         {
             CurrentRoutePos++;
-        } 
+        } */
 
         return res;
     }
