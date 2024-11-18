@@ -331,7 +331,7 @@ public class Simulation
         {
             var originalColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Moved to {vehicle!.CurrentEdge!.StartPoint.Id}");
+            Console.WriteLine($"Moving to {vehicle!.CurrentEdge!.StartPoint.Id}");
             Console.ForegroundColor = originalColor;
 
             eventEndsAt = eventStartsAt + (int)Math.Ceiling(vehicle.CurrentEdge!.Distance / vehicle.CurrentEdge!.SpeedLimit);

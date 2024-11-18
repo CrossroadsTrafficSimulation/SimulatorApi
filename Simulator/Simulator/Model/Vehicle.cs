@@ -50,7 +50,7 @@ public class Vehicle
         Console.WriteLine($"Driving through: {CurrentRoutePos}, to {CurrentRoutePos + 1} size {Route.Count} no pedestrians {CurrentPoint!.IsPossibleToDriveThrough()}, allowed {CurrentEdge!.IsAllowedToDriveThrough(Size)}");
 
         // Route.Count == 4 => 3 edges
-        if (CurrentRoutePos + 1 >= Route.Count - 1)
+        if (CurrentRoutePos >= Route.Count - 1)
         {
             return false;
         }
