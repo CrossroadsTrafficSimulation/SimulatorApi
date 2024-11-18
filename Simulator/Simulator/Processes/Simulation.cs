@@ -3,13 +3,18 @@ using Simulator.Model.Dtos;
 using Simulator.Model.Dtos.Response;
 using Simulator.Model.Entites;
 using Simulator.Model.Enums;
+using System;
 
 namespace Simulator.Processes;
 
-public class Simulation
+internal class Simulation
 {
     private readonly int _simulationTime = 24 * 60 * 60;
     public SimulationModel SimulationModel { get; set; } = null!;
+
+    private readonly Statistics _statistics = new(24);
+    private readonly List<Event>[] _statisticsQueue;
+
     private readonly List<Event>[] _trafficLightQueue;
     private readonly List<Event>[] _pedestrianQueue;
     private readonly List<Event>[] _vehicleQueue;
@@ -23,12 +28,21 @@ public class Simulation
         _pedestrianQueue = new List<Event>[_simulationTime];
         _vehicleQueue = new List<Event>[_simulationTime];
 
+        _statisticsQueue = new List<Event>[_simulationTime];
+
         for (int i = 0; i < _simulationTime; i++)
         {
+            _statisticsQueue[i] = [];
             _trafficLightQueue[i] = [];
             _pedestrianQueue[i] = [];
             _vehicleQueue[i] = [];
         }
+    }
+
+    public void ProcessStatistics(int currentTime)
+    {
+        _statisticsQueue[currentTime].ForEach(e => e.Action());
+        _statisticsQueue[currentTime].Clear();
     }
 
     public void ProcessVehicles(int currentTime)
@@ -118,6 +132,12 @@ public class Simulation
                 () => GenerateVehicles(flow, eventStartsAt: InitialSimulationTime));
             _vehicleQueue[InitialSimulationTime].Add(generateVehicles);
         }
+        _statistics.CreateAllEdgeStatistics(SimulationModel.Edges);
+
+        var collectEdgeStatistics = CreateEvent(0, InitialSimulationTime, EventType.CollectStatistics,
+            () => CollectEdgeStatistics(InitialSimulationTime));
+        _statisticsQueue[InitialSimulationTime].Add(collectEdgeStatistics);
+
     }
 
     private static Event CreateEvent(int startTime, int endTime, EventType type, Action action)
@@ -134,8 +154,41 @@ public class Simulation
 
     public SimulationResponseTo GetResult()
     {
-        throw new NotImplementedException();
+        return new SimulationResponseTo([.. _statistics.EdgesVehicleDencity, .. _statistics.CrossWalkPedestrianDencity]);
     }
+
+    #region Statistics
+
+    public void CollectEdgeStatistics(int actionStartTime)
+    {
+        var actionStartHour = (int)double.Floor(actionStartTime / (60.0 * 60.0));
+        foreach (var edgeStatistics in _statistics.EdgesVehicleDencity)
+        {
+            var edge = SimulationModel
+                        .Edges
+                        .FirstOrDefault(e => e.Id == edgeStatistics.EdgeId);
+            edgeStatistics.Statistics[actionStartHour] += (double)edge!.Vehicles.Count/(60*60);
+        }
+        var nextEndTime = actionStartTime + 1;
+        if (nextEndTime >= _simulationTime)
+        {
+            return;
+        }
+        _statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
+            () => CollectEdgeStatistics(nextEndTime)));
+    }
+
+    public void CollectCrossWalkStatistics(int actionStartTime)
+    {
+        //var nextEndTime = actionStartTime + 1;
+        //if (nextEndTime >= _simulationTime)
+        //{
+        //    return;
+        //}
+        //_statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
+        //    () => CollectCrossWalkStatistics(nextEndTime)));
+    }
+    #endregion
 
     #region Traffic lights
     private void ChangeTrafficLightState(TrafficLight trafficLight, int eventStartsAt)
@@ -325,10 +378,10 @@ public class Simulation
 
         if (vehicle.TryDriveThrough())
         {
-/*            var originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Moving to {vehicle!.CurrentEdge!.StartPoint.Id}");
-            Console.ForegroundColor = originalColor;*/
+            /*            var originalColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Moving to {vehicle!.CurrentEdge!.StartPoint.Id}");
+                        Console.ForegroundColor = originalColor;*/
 
             eventEndsAt = eventStartsAt + (int)Math.Ceiling(vehicle.CurrentEdge!.Distance / vehicle.CurrentEdge!.SpeedLimit);
 

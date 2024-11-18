@@ -23,11 +23,11 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        _ = simulationService.SimulateTraffic();
+        var result = simulationService.SimulateTraffic();
 
         stopwatch.Stop();
         Console.WriteLine($"TOTAL: {stopwatch.Elapsed}");
 
-        return Ok();
+        return Ok(result);
     }
 }

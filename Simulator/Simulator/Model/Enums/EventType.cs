@@ -3,11 +3,16 @@
 internal enum EventType
 {
     TrafficLightSwitch,
+
     PedestrianGenerate,
     PedestrianCross,
     PedestrianStartCross,
+
     VehicleGenerate,
     VehicleMove,
     VehicleMoveToNextEdge,
-    VehicleAddGenerated
+    VehicleAddGenerated,
+
+    UpdateStatistics,
+    CollectStatistics
 }

@@ -3,6 +3,7 @@ using Simulator.Model.Dtos.Request;
 using Simulator.Model.Dtos.Response;
 using Simulator.Processes;
 using Simulator.Services.Interface;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Simulator.Services.Implementation;
@@ -32,21 +33,22 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
             simulation.ProcessTrafficLights(currentTime);
             simulation.ProcessPedestrians(currentTime);
             simulation.ProcessVehicles(currentTime);
+            simulation.ProcessStatistics(currentTime);
         }
         watch.Stop();
         Console.WriteLine($"Done: {watch.ElapsedMilliseconds}");
-        return null!;
+        return simulation.GetResult();
     }
     public List<SimulationResponseTo> SimulateTraffic()
     {
-        var results = new List<SimulationResponseTo>();
+        var results = new ConcurrentBag<SimulationResponseTo>();
 
-        foreach (var simulation in _simulations)
+        Parallel.ForEach(_simulations, (simulation) => 
         {
             results.Add(RunSimulation(simulation));
-        }
+        });
 
-        return results;
+        return [..results];
     }
 
 }
