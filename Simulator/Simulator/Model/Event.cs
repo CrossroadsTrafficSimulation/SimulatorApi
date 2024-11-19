@@ -2,7 +2,7 @@
 
 namespace Simulator.Model;
 
-internal class Event
+public class Event
 {
     public EventType Type { get; set; }
     public int StartTime { get; set; }

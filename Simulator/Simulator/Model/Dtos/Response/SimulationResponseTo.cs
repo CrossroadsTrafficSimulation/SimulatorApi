@@ -1,3 +1,5 @@
-﻿namespace Simulator.Model.Dtos.Response;
+﻿using Simulator.Model.Entites;
 
-public record SimulationResponseTo(List<object> Statistics) { }
+namespace Simulator.Model.Dtos.Response;
+
+public record SimulationResponseTo(Statistics simulationStatistics) { }

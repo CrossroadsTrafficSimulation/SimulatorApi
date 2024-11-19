@@ -7,7 +7,7 @@ using System;
 
 namespace Simulator.Processes;
 
-internal class Simulation
+public class Simulation
 {
     private readonly int _simulationTime = 24 * 60 * 60;
     public SimulationModel SimulationModel { get; set; } = null!;
@@ -119,11 +119,15 @@ internal class Simulation
             .Select(group => group.Select(p => p.Value).ToList())
             .ToList();
 
+        _statistics.CreateAllCrosswalkStatistics(pedestrianFlowsList);
         foreach (var points in pedestrianFlowsList)
         {
             var generatePedestrian = CreateEvent(0, InitialSimulationTime, EventType.PedestrianGenerate,
                 () => GeneratePedestrian(points, eventStartsAt: InitialSimulationTime));
             _pedestrianQueue[InitialSimulationTime].Add(generatePedestrian);
+            var collectCrosswalkStatistics = CreateEvent(0, InitialSimulationTime, EventType.CollectStatistics,
+                () => CollectCrossWalkStatistics(points, InitialSimulationTime));
+            _statisticsQueue[InitialSimulationTime].Add(collectCrosswalkStatistics);
         }
 
         foreach (var flow in SimulationModel.Flows)
@@ -154,11 +158,10 @@ internal class Simulation
 
     public SimulationResponseTo GetResult()
     {
-        return new SimulationResponseTo([.. _statistics.EdgesVehicleDencity, .. _statistics.CrossWalkPedestrianDencity]);
+        return new SimulationResponseTo(_statistics);
     }
 
     #region Statistics
-
     public void CollectEdgeStatistics(int actionStartTime)
     {
         var actionStartHour = (int)double.Floor(actionStartTime / (60.0 * 60.0));
@@ -178,15 +181,19 @@ internal class Simulation
             () => CollectEdgeStatistics(nextEndTime)));
     }
 
-    public void CollectCrossWalkStatistics(int actionStartTime)
+    public void CollectCrossWalkStatistics(List<Point> crosswalk,int actionStartTime)
     {
-        //var nextEndTime = actionStartTime + 1;
-        //if (nextEndTime >= _simulationTime)
-        //{
-        //    return;
-        //}
-        //_statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
-        //    () => CollectCrossWalkStatistics(nextEndTime)));
+        var actionStartHour = (int)double.Floor(actionStartTime / (60.0 * 60.0));
+        var ids = crosswalk.Select(c => c.Id);
+        var crosswalkStatistics = _statistics.CrossWalkPedestrianDencity.FirstOrDefault(c => c.Croswalk.All(c => ids.Contains(c)));
+        crosswalkStatistics!.Statistics[actionStartHour] += (double)crosswalk[0].PedestriansQueueCount / (60 * 60);
+        var nextEndTime = actionStartTime + 1;
+        if (nextEndTime >= _simulationTime)
+        {
+            return;
+        }
+        _statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
+            () => CollectCrossWalkStatistics(crosswalk,nextEndTime)));
     }
     #endregion
 

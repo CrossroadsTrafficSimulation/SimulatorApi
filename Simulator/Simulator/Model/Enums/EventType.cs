@@ -1,6 +1,6 @@
 ﻿namespace Simulator.Model.Enums;
 
-internal enum EventType
+public enum EventType
 {
     TrafficLightSwitch,
 
