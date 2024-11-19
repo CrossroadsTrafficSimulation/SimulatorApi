@@ -1,6 +1,4 @@
-﻿using Nito.Collections;
-using Simulator.Model.Enums;
-using Route = System.Collections.Generic.List<Simulator.Model.Entites.Point>;
+﻿using System.Collections.Concurrent;
 
 namespace Simulator.Model.Entites;
 
@@ -11,10 +9,11 @@ public class Edge()
     public string StartPointId { get; set; } = null!;
     public Point EndPoint { get; set; } = null!;
     public string EndPointId { get; set; } = null!;
-    public double Speed { get; set; }
+    public double SpeedLimit { get; set; }
     public double Distance { get; set; }
     public TrafficLight? TrafficLight { get; set; } = null;
-    public Deque<Vehicle> Vehicles { get; set; } = [];
+    //public Queue<Vehicle> Vehicles { get; set; } = [];
+    public ConcurrentQueue<Vehicle> Vehicles { get; set; } = [];
     public double SumCarsLength { get; set; } = 0.0;
 
     public Edge(string id, Point startPoint, Point endPoint, double speed, double distance, TrafficLight? trafficLight = null) : this()
@@ -24,93 +23,47 @@ public class Edge()
         StartPointId = startPoint.Id;
         EndPoint = endPoint;
         EndPointId = endPoint.Id;
-        Speed = speed;
+        SpeedLimit = speed;
         Distance = distance;
         TrafficLight = trafficLight;
     }
 
-    public bool CheckIfEdgeIsFree(double carSize)
+    public bool IsEdgeFree(double carSize)
     {
-        if (SumCarsLength >= Distance || Distance - SumCarsLength <= carSize * 0.9)
-        {
-            return false;
-        }
-        
-        return true;
+        return SumCarsLength + carSize < Distance || Vehicles.Count == 0;
     }
 
-    public Vehicle AddVehicle(double carSize, Route route)
+    public bool IsAllowedToDriveThrough(double carSize)
     {
-        var vehicle = new Vehicle()
-        {
-            CarSize = carSize,
-            Route = route,
-            TillEnd = Distance
-        };
-        if (Vehicles.Count > 0)
-        {
-            vehicle.FrontCar = Vehicles.Last();
-        }
-       
-        Vehicles.AddToBack(vehicle);
-        SumCarsLength += carSize;
-        return vehicle;
+        return TrafficLight is null ? IsEdgeFree(carSize) : IsEdgeFree(carSize) && TrafficLight.CurrentState == Enums.TrafficLightState.Green;
     }
 
-    public Vehicle AddVehicle(Vehicle vehicle)
+    public bool TryEnqueueVehicle(Vehicle vehicle)
     {
-        vehicle.TillEnd = Distance;
-        if (Vehicles.Count > 0)
+        if (IsEdgeFree(vehicle.Size))
         {
-            vehicle.FrontCar = Vehicles.Last();
-        }
+            Vehicles.Enqueue(vehicle);
+            SumCarsLength += vehicle.Size;
 
-        Vehicles.AddToBack(vehicle);
-        SumCarsLength += vehicle.CarSize;
-        return vehicle;
-    }
-
-    public Vehicle RemoveVehicle()
-    {
-        var vehicle = Vehicles.RemoveFromFront();
-        if (Vehicles.Count != 0)
-        {
-            Vehicles[0].FrontCar = null;
-        }
-        SumCarsLength -= vehicle.CarSize;
-        if (SumCarsLength < 0)
-        {
-            SumCarsLength = 0;
-        }
-
-        return vehicle;
-    }
-
-    public bool CheckIfAchiveEnd()
-    {
-        if (Vehicles.Count == 0)
-        {
-            return false;
-        }
-        var vehicle = Vehicles[0];
-        if (vehicle.TillEnd <= 0.0)
-        {
             return true;
         }
 
         return false;
     }
 
-    public bool IsPossibleToDrive()
+    public bool TryDequeueVehicle(out Vehicle? vehicle)
     {
-        if (TrafficLight is null)
+        var res = Vehicles.TryDequeue(out vehicle) && vehicle is not null;
+        if (res)
         {
-            return true;
+            SumCarsLength -= vehicle!.Size;
+
+            if (SumCarsLength < 0)
+            {
+                SumCarsLength = 0;
+            }
         }
-        if (TrafficLight?.CurrentState == TrafficLightState.Green)
-        {
-            return true;
-        }
-        return false;
+
+        return res;
     }
 }

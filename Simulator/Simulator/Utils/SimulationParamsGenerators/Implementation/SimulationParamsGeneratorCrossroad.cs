@@ -7,7 +7,7 @@ using RouteRequestTo = System.Collections.Generic.List<string>;
 
 namespace Simulator.Utils.SimulationParamsGenerators.Implementation;
 
-public class SimulationParamsGeneratorOne : ISimulationParamsGenerator
+public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {

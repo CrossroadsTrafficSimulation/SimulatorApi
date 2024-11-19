@@ -9,7 +9,8 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
-        _ = CreateMap<EdgeRequestTo, Edge>();
+        _ = CreateMap<EdgeRequestTo, Edge>()
+            .ForMember(dst => dst.SpeedLimit, opt => opt.MapFrom(src => src.Speed));
         _ = CreateMap<PointRequestTo, Point>();
         _ = CreateMap<TrafficLightRequestTo, TrafficLight>()
             .ForMember(dst => dst.CurrentState, opt => opt.MapFrom(src => src.InitialState))
