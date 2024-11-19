@@ -18,7 +18,7 @@ public class SimulationController(ISimulationService simulationService) : Contro
         )
     {
         Console.WriteLine(new SimulationParamsGeneratorCrossroad().GetSimulationParamsJson());
-        var simulationParams = new SimulationParamsGeneratorCrossroad().GetSimulationParams();
+        //var simulationParams = new SimulationParamsGeneratorCrossroad().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
 
         var stopwatch = new Stopwatch();
