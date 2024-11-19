@@ -6,7 +6,7 @@ using RouteRequestTo = System.Collections.Generic.List<string>;
 
 namespace Simulator.Utils.SimulationParamsGenerators.Implementation;
 
-public class SimulationParamsGenertorOneCrossing : ISimulationParamsGenerator
+public class SimulationParamsGenertorCrossing : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {
@@ -42,13 +42,13 @@ public class SimulationParamsGenertorOneCrossing : ISimulationParamsGenerator
 
         var leftPedestriansSource = new PedestrianFlowRequestTo([leftBottomPoint.Id, leftTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 0.0 },
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 2.0 },
             { new TimeOnly(hour: 1, minute: 0, second: 0), 0.0 }
         });
 
         var rightPedestrianSource = new PedestrianFlowRequestTo([rightBottomPoint.Id, rightTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 0.0 },
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 20.0 },
             { new TimeOnly(hour: 1, minute: 0, second: 0), 0.0 }
         });
 

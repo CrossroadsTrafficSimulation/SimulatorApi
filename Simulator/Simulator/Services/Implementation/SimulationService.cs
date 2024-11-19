@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Simulator.Model.Dtos.Request;
+﻿using Simulator.Model.Dtos.Request;
 using Simulator.Model.Dtos.Response;
 using Simulator.Processes;
 using Simulator.Services.Interface;
@@ -8,13 +7,13 @@ using System.Diagnostics;
 
 namespace Simulator.Services.Implementation;
 
-public class SimulationService(IMapper mapper, IModelPreparationService preparationService) : ISimulationService
+public class SimulationService(IModelPreparationService preparationService) : ISimulationService
 {
     private readonly List<Simulation> _simulations = [];
     private const int SimulationTime = 24 * 60 * 60;
+
     public void SetUpSimulations(SimulationParamsRequestTo simulationParams, int simulationQuantity)
     {
-        _ = new Random();
         for (int i = 0; i < simulationQuantity; i++)
         {
             _simulations.Add(new Simulation(SimulationTime)
@@ -23,7 +22,8 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
             });
         }
     }
-    private SimulationResponseTo RunSimulation(Simulation simulation)
+
+    private static SimulationResponseTo RunSimulation(Simulation simulation)
     {
         var watch = new Stopwatch();
         watch.Start();
@@ -37,18 +37,19 @@ public class SimulationService(IMapper mapper, IModelPreparationService preparat
         }
         watch.Stop();
         Console.WriteLine($"Done: {watch.ElapsedMilliseconds}");
+
         return simulation.GetResult();
     }
+
     public List<SimulationResponseTo> SimulateTraffic()
     {
         var results = new ConcurrentBag<SimulationResponseTo>();
 
-        Parallel.ForEach(_simulations, (simulation) => 
+        _ = Parallel.ForEach(_simulations, (simulation) =>
         {
             results.Add(RunSimulation(simulation));
         });
 
-        return [..results];
+        return [.. results];
     }
-
 }

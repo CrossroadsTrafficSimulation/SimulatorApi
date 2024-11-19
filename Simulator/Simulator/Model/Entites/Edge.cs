@@ -32,11 +32,7 @@ public class Edge()
 
     public bool IsAllowedToDriveThrough(double carSize)
     {
-        if (TrafficLight is null)
-        {
-            return IsEdgeFree(carSize);
-        }
-        return IsEdgeFree(carSize) && TrafficLight.CurrentState == Enums.TrafficLightState.Green;
+        return TrafficLight is null ? IsEdgeFree(carSize) : IsEdgeFree(carSize) && TrafficLight.CurrentState == Enums.TrafficLightState.Green;
     }
 
     public bool TryEnqueueVehicle(Vehicle vehicle)
@@ -54,7 +50,7 @@ public class Edge()
 
     public bool TryDequeueVehicle(out Vehicle? vehicle)
     {
-        var res = Vehicles.TryDequeue(out vehicle);
+        var res = Vehicles.TryDequeue(out vehicle) && vehicle is not null;
         if (res)
         {
             SumCarsLength -= vehicle!.Size;

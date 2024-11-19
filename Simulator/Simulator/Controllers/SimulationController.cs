@@ -8,7 +8,7 @@ namespace Simulator.Controllers;
 
 [ApiController]
 [Route("api/v1.0.0/simulation")]
-public class SimulationController(ILogger<SimulationController> logger, ISimulationService simulationService) : ControllerBase
+public class SimulationController(ISimulationService simulationService) : ControllerBase
 {
     [HttpPost]
     [Route("run")]
@@ -16,8 +16,8 @@ public class SimulationController(ILogger<SimulationController> logger, ISimulat
         //[FromBody] SimulationParamsRequestTo simulationParams
         )
     {
-        Console.WriteLine(new SimulationParamsGenertorOneCrossing().GetSimulationParamsJson());
-        var simulationParams = new SimulationParamsGenertorOneCrossing().GetSimulationParams();
+        Console.WriteLine(new SimulationParamsGeneratorCrossroad().GetSimulationParamsJson());
+        var simulationParams = new SimulationParamsGeneratorCrossroad().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
 
         var stopwatch = new Stopwatch();

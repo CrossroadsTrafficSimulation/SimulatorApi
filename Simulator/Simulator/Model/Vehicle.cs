@@ -7,7 +7,6 @@ public class Vehicle
     public Route Route { get; set; } = null!;
     public double Size { get; set; } = 0.0;
     public int CurrentRoutePos { get; set; } = 0;
-    public string? CurrentEdgeId { get; set; } = null;
 
     public Point? CurrentPoint => CurrentRoutePos <= Route.Count ? Route[CurrentRoutePos] : null;
 
@@ -47,17 +46,13 @@ public class Vehicle
 
     public bool TryDriveThrough()
     {
-        // Route.Count == 4 => 3 edges
+        // if Route.Count == 4 then 3 edges
         if (CurrentRoutePos >= Route.Count - 1)
         {
             return false;
         }
 
         var res = CurrentPoint!.IsPossibleToDriveThrough() && CurrentEdge!.IsAllowedToDriveThrough(Size);
-        /*        if (res)
-                {
-                    CurrentRoutePos++;
-                } */
 
         return res;
     }
