@@ -3,7 +3,6 @@ using Simulator.Model.Dtos;
 using Simulator.Model.Dtos.Response;
 using Simulator.Model.Entites;
 using Simulator.Model.Enums;
-using System;
 
 namespace Simulator.Processes;
 
@@ -47,9 +46,12 @@ public class Simulation
 
     public void ProcessVehicles(int currentTime)
     {
+        //Console.WriteLine($"Current time: {currentTime}");
+        //Console.WriteLine($"Vehicle tasks: {_vehicleQueue[currentTime].Count}");
+
         _vehicleQueue[currentTime].ForEach(e => e.Action());
         _vehicleQueue[currentTime].Clear();
-        //Console.WriteLine($"Current time: {currentTime}");
+
         //foreach (var edge in SimulationModel.Edges)
         //{
         //    if (edge.Vehicles.Count != 0)
@@ -172,7 +174,7 @@ public class Simulation
             var edge = SimulationModel
                         .Edges
                         .FirstOrDefault(e => e.Id == edgeStatistics.EdgeId);
-            edgeStatistics.Statistics[actionStartHour] += (double)edge!.Vehicles.Count/(60*60);
+            edgeStatistics.Statistics[actionStartHour] += (double)edge!.Vehicles.Count / (60 * 60);
         }
         var nextEndTime = actionStartTime + 1;
         if (nextEndTime >= _simulationTime)
@@ -183,7 +185,7 @@ public class Simulation
             () => CollectEdgeStatistics(nextEndTime)));
     }
 
-    public void CollectCrossWalkStatistics(List<Point> crosswalk,int actionStartTime)
+    public void CollectCrossWalkStatistics(List<Point> crosswalk, int actionStartTime)
     {
         var actionStartHour = (int)double.Floor(actionStartTime / (60.0 * 60.0));
         var ids = crosswalk.Select(c => c.Id);
@@ -195,7 +197,7 @@ public class Simulation
             return;
         }
         _statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
-            () => CollectCrossWalkStatistics(crosswalk,nextEndTime)));
+            () => CollectCrossWalkStatistics(crosswalk, nextEndTime)));
     }
     #endregion
 
@@ -203,6 +205,7 @@ public class Simulation
     private void ChangeTrafficLightState(TrafficLight trafficLight, int eventStartsAt)
     {
         trafficLight.SwitchState();
+
         var eventEndsAt = eventStartsAt + trafficLight.States[trafficLight.CurrentState];
 
         if (eventEndsAt >= _simulationTime)
@@ -276,7 +279,11 @@ public class Simulation
         }
         else
         {
+            var secondsTillRed = trafficLights.FirstOrDefault()?.SecondsTillRed(eventStartsAt) ?? 0;
+            eventStartsAt += secondsTillRed;
             var eventEndsAt = eventStartsAt + 1;
+            // was
+            //var eventEndsAt = eventStartsAt + 1;
             if (eventEndsAt < _simulationTime)
             {
                 var startCross = CreateEvent(eventStartsAt, eventEndsAt, EventType.PedestrianStartCross,
@@ -331,6 +338,7 @@ public class Simulation
         {
             AddGeneratedToEdge(flow, spawnEdge, eventStartsAt, carSize);
         }
+        //Console.WriteLine($"Generate: {s.Elapsed}");
     }
 
     private void AddGeneratedToEdge(Flow flow, Edge spawnEdge, int eventStartsAt, double carSize)
@@ -374,6 +382,7 @@ public class Simulation
         }
 
         flow.VehiclesInQueue -= vehiclesAddedToEdgeCount;
+        //Console.WriteLine($"Add generated: {s.Elapsed}");
     }
 
     public void MoveVehicle(Vehicle vehicle, int eventStartsAt)
@@ -386,37 +395,47 @@ public class Simulation
 
         if (vehicle.TryDriveThrough())
         {
-            var originalColor = Console.ForegroundColor;
+            //var originalColor = Console.ForegroundColor;
             //Console.ForegroundColor = ConsoleColor.Red;
             //Console.WriteLine($"Moving in {vehicle.CurrentEdge!.Id}");
             //Console.ForegroundColor = originalColor;
 
-            eventEndsAt = eventStartsAt + (int)Math.Ceiling(vehicle.CurrentEdge!.Distance / vehicle.CurrentEdge!.SpeedLimit);
+            eventEndsAt = eventStartsAt + (int)(vehicle.CurrentEdge!.Distance / vehicle.CurrentEdge!.SpeedLimit);
 
+            //MoveS.Start();
             if (eventEndsAt < _simulationTime)
             {
                 var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
                     () => ToNextEdge(vehicle.CurrentEdge, vehicle.NextEdge!, eventEndsAt));
                 _vehicleQueue[eventEndsAt].Add(enqueue);
             }
+            //MoveS.Stop();
         }
         // Red traffic light or pedestrians
         else
         {
-/*            if (vehicle.CurrentEdge.TrafficLight is not null && vehicle.CurrentEdge.TrafficLight.CurrentState != TrafficLightState.Green)
+            /*            if (vehicle.CurrentEdge.TrafficLight is not null && vehicle.CurrentEdge.TrafficLight.CurrentState != TrafficLightState.Green)
+                        {
+                            Console.WriteLine("Red traffic light");
+                        }
+                        if (!vehicle.CurrentPoint.IsPossibleToDriveThrough())
+                        {
+                            Console.WriteLine($"Pedestrians on the road {vehicle.CurrentPoint.PedestriansOnTheRoadCount}");
+                        }
+                        if (!vehicle.CurrentEdge.IsEdgeFree(vehicle.Size))
+                        {
+                            Console.WriteLine("Traffic queue");
+                        }*/
+            if (vehicle.CurrentEdge!.TrafficLight is not null)
             {
-                Console.WriteLine("Red traffic light");
+                var secondsTillGreen = vehicle.CurrentEdge.TrafficLight.SecondsTillGreen(eventStartsAt);
+                eventStartsAt += secondsTillGreen;
+                eventEndsAt += secondsTillGreen;
             }
-            if (!vehicle.CurrentPoint.IsPossibleToDriveThrough())
-            {
-                Console.WriteLine($"Pedestrians on the road {vehicle.CurrentPoint.PedestriansOnTheRoadCount}");
-            }
-            if (!vehicle.CurrentEdge.IsEdgeFree(vehicle.Size))
-            {
-                Console.WriteLine("Traffic queue");
-            }*/
             ScheduleMoveEvent(eventStartsAt, eventEndsAt, vehicle);
         }
+
+        //Console.WriteLine($"Move: {s.Elapsed}");
     }
 
     public void ToNextEdge(Edge currEdge, Edge nextEdge, int eventStartsAt)
@@ -434,7 +453,7 @@ public class Simulation
 
         //Console.WriteLine($"Trying to dequeue from {currEdge.Id}");
         // try can dequeue
-        if (currEdge.TryDequeueVehicle(out var vehicle))
+        if (currEdge.Vehicles.TryPeek(out var vehicle))
         {
             if (vehicle!.IsLastPoint)
             {
@@ -457,31 +476,42 @@ public class Simulation
                 // Add time here to simulate the delay from the queue
                 if (nextEdge.TryEnqueueVehicle(vehicle!))
                 {
-                    vehicle!.CurrentRoutePos++;
-                    //Console.WriteLine("Switching edge");
-                    ScheduleMoveEvent(eventStartsAt, eventEndsAt, vehicle!);
+                    if (currEdge.TryDequeueVehicle(out var _))
+                    {
+                        vehicle!.CurrentRoutePos++;
+                        //Console.WriteLine("Switching edge");
+                        ScheduleMoveEvent(eventStartsAt, eventEndsAt, vehicle!);
+                    }
                 }
                 else
                 {
                     //Console.WriteLine($"Failed to switch edge q size {nextEdge.Vehicles.Count}");
+                    var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
+                        () => ToNextEdge(currEdge, nextEdge, eventEndsAt));
+                    _vehicleQueue[eventEndsAt].Add(enqueue);
                 }
             }
         }
-        else
-        {
-            var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
-                () => ToNextEdge(currEdge, nextEdge, eventEndsAt));
-            _vehicleQueue[eventEndsAt].Add(enqueue);
-        }
+        /*        else
+                {
+                    var enqueue = CreateEvent(eventStartsAt, eventEndsAt, EventType.VehicleMoveToNextEdge,
+                        () => ToNextEdge(currEdge, nextEdge, eventEndsAt));
+                    _vehicleQueue[eventEndsAt].Add(enqueue);
+                }*/
 
         //Console.ForegroundColor = originalColor;
+
+        //Console.WriteLine($"Next edge: {s.Elapsed}");
     }
 
     private void ScheduleMoveEvent(int currentTime, int eventEndsTime, Vehicle vehicle)
     {
-        var move = CreateEvent(currentTime, eventEndsTime, EventType.VehicleMove,
-            () => MoveVehicle(vehicle, eventEndsTime));
-        _vehicleQueue[eventEndsTime].Add(move);
+        if (eventEndsTime < _simulationTime)
+        {
+            var move = CreateEvent(currentTime, eventEndsTime, EventType.VehicleMove,
+                () => MoveVehicle(vehicle, eventEndsTime));
+            _vehicleQueue[eventEndsTime].Add(move);
+        }
     }
     #endregion
 }
