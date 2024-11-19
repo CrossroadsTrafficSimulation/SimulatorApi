@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Simulator.Model.Dtos.Request;
 using Simulator.Services.Interface;
+using Simulator.Model.Dtos.Request;
 using Simulator.Utils.SimulationParamsGenerators.Implementation;
 using System.Diagnostics;
 
@@ -13,7 +14,7 @@ public class SimulationController(ISimulationService simulationService) : Contro
     [HttpPost]
     [Route("run")]
     public IActionResult RunSimulation(
-        //[FromBody] SimulationParamsRequestTo simulationParams
+        [FromBody] SimulationParamsRequestTo simulationParams
         )
     {
         Console.WriteLine(new SimulationParamsGeneratorCrossroad().GetSimulationParamsJson());
