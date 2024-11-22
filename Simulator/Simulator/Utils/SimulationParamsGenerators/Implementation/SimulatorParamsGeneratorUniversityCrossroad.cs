@@ -7,7 +7,7 @@ using RouteRequestTo = System.Collections.Generic.List<string>;
 
 namespace Simulator.Utils.SimulationParamsGenerators.Implementation;
 
-public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
+public class SimulationParamsGeneratorUniversityCrossroad : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {
@@ -62,25 +62,38 @@ public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
         #region Pedestrian flows
         List<PedestrianFlowRequestTo> pedestrianFlows = [];
 
-        var leftPedestriansSource = new PedestrianFlowRequestTo([leftBottomPoint.Id, leftTopPoint.Id], new Dictionary<TimeOnly, double>
+        var sourceDict = new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
-        });
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 0 },
+            { new TimeOnly(hour: 1, minute: 0, second: 0), 1 * 3 / 60 },
+            { new TimeOnly(hour: 2, minute: 0, second: 0), 2.7 * 3 / 60 },
+            { new TimeOnly(hour: 3, minute: 0, second: 0), 8 * 3 / 60 },
+            { new TimeOnly(hour: 4, minute: 0, second: 0), 11 * 3 / 60 },
+            { new TimeOnly(hour: 5, minute: 0, second: 0), 11 * 3 / 60 },
+            { new TimeOnly(hour: 6, minute: 0, second: 0), 10 * 3 / 60 },
+            { new TimeOnly(hour: 7, minute: 0, second: 0), 5 * 3 / 60 },
+            { new TimeOnly(hour: 8, minute: 0, second: 0), 2.5 * 3 / 60 },
+            { new TimeOnly(hour: 9, minute: 0, second: 0), 1 * 3 / 60 },
+            { new TimeOnly(hour: 10, minute: 0, second: 0), 2 * 3 / 60 },
+            { new TimeOnly(hour: 11, minute: 0, second: 0), 5 * 3 / 60 },
+            { new TimeOnly(hour: 12, minute: 0, second: 0), 9 * 3 / 60 },
+            { new TimeOnly(hour: 13, minute: 0, second: 0), 12.6 * 3 / 60 },
+            { new TimeOnly(hour: 14, minute: 0, second: 0), 16 * 3 / 60 },
+            { new TimeOnly(hour: 15, minute: 0, second: 0), 20 * 3 / 60 },
+            { new TimeOnly(hour: 16, minute: 0, second: 0), 19 * 3 / 60 },
+            { new TimeOnly(hour: 17, minute: 0, second: 0), 17 * 3 / 60 },
+            { new TimeOnly(hour: 18, minute: 0, second: 0), 12 * 3 / 60 },
+            { new TimeOnly(hour: 19, minute: 0, second: 0), 10 * 3 / 60 },
+            { new TimeOnly(hour: 20, minute: 0, second: 0), 5 * 3 / 60 },
+            { new TimeOnly(hour: 21, minute: 0, second: 0), 3 * 3 / 60 },
+            { new TimeOnly(hour: 22, minute: 0, second: 0), 1 * 3 / 60 },
+            { new TimeOnly(hour: 23, minute: 0, second: 0), 0 * 3 / 60 }
+        };
 
-        var bottomPedestrianSource = new PedestrianFlowRequestTo([bottomLeftPoint.Id, bottomRightPoint.Id], new Dictionary<TimeOnly, double>
-        {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
-        });
-
-        var rightPedestrianSource = new PedestrianFlowRequestTo([rightBottomPoint.Id, rightTopPoint.Id], new Dictionary<TimeOnly, double>
-        {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
-        });
-
-        var topPedestrianSource = new PedestrianFlowRequestTo([topLeftPoint.Id, topRightPoint.Id], new Dictionary<TimeOnly, double>
-        {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
-        });
+        var leftPedestriansSource = new PedestrianFlowRequestTo([leftBottomPoint.Id, leftTopPoint.Id], sourceDict);
+        var bottomPedestrianSource = new PedestrianFlowRequestTo([bottomLeftPoint.Id, bottomRightPoint.Id], sourceDict);
+        var rightPedestrianSource = new PedestrianFlowRequestTo([rightBottomPoint.Id, rightTopPoint.Id], sourceDict);
+        var topPedestrianSource = new PedestrianFlowRequestTo([topLeftPoint.Id, topRightPoint.Id], sourceDict);
 
         pedestrianFlows.AddRange([bottomPedestrianSource, topPedestrianSource, rightPedestrianSource, leftPedestriansSource]);
         #endregion
@@ -113,8 +126,9 @@ public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
 
         var topSourceRightToTopRight = new EdgeRequestTo($"{topFlowSourceRight.Id} => {topRightPoint.Id}", speed, distance, topFlowSourceRight.Id,
             topRightPoint.Id);
+        #endregion
 
-        // Change taffic lights
+        #region Traffic lights
         var leftBottomToBottomLeft = new EdgeRequestTo($"{leftBottomPoint.Id} => {bottomLeftPoint.Id}", speed, distance, leftBottomPoint.Id,
             bottomLeftPoint.Id,
             new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
@@ -179,23 +193,23 @@ public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
             [
                 new FlowRequestTo(leftFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.67 }
                 }),
                 new FlowRequestTo(bottomFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.67 }
                 }),
                 new FlowRequestTo(rightFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.67 }
                 }),
                 new FlowRequestTo(topFlowSourceLeft.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.67 }
                 }),
                 new FlowRequestTo(topFlowSourceRight.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.67 }
                 })
             ]);
         #endregion

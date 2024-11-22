@@ -1,5 +1,4 @@
 ﻿using Simulator.Model.Dtos.Request;
-using Simulator.Model.Enums;
 using Simulator.Utils.SimulationParamsGenerators.Interface;
 using System.Text.Json;
 
@@ -7,7 +6,7 @@ using RouteRequestTo = System.Collections.Generic.List<string>;
 
 namespace Simulator.Utils.SimulationParamsGenerators.Implementation;
 
-public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
+public class SimulationParamsGeneratorCrossroadNoTrafficLights : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {
@@ -116,38 +115,29 @@ public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
 
         // Change taffic lights
         var leftBottomToBottomLeft = new EdgeRequestTo($"{leftBottomPoint.Id} => {bottomLeftPoint.Id}", speed, distance, leftBottomPoint.Id,
-            bottomLeftPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
+            bottomLeftPoint.Id);
 
         var leftBottomToRightBottom = new EdgeRequestTo($"{leftBottomPoint.Id} => {rightBottomPoint.Id}", speed, distance, leftBottomPoint.Id,
-            rightBottomPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
+            rightBottomPoint.Id);
 
         var bottomRightToRightBottom = new EdgeRequestTo($"{bottomRightPoint.Id} => {rightBottomPoint.Id}", speed, distance, bottomRightPoint.Id,
-            rightBottomPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
+            rightBottomPoint.Id);
 
         var bottomRightToLeftTop = new EdgeRequestTo($"{bottomRightPoint.Id} => {leftTopPoint.Id}", speed, distance, bottomRightPoint.Id,
-            leftTopPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
+            leftTopPoint.Id);
 
-        var rightTopToLeftTop = new EdgeRequestTo($"{rightTopPoint.Id} => {leftTopPoint.Id}", speed, distance, rightTopPoint.Id, leftTopPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
+        var rightTopToLeftTop = new EdgeRequestTo($"{rightTopPoint.Id} => {leftTopPoint.Id}", speed, distance, rightTopPoint.Id, leftTopPoint.Id);
 
         var rightTopToBottomLeft = new EdgeRequestTo($"{rightTopPoint.Id} => {bottomLeftPoint.Id}", speed, distance, rightTopPoint.Id,
-            bottomLeftPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Red));
+            bottomLeftPoint.Id);
 
         var topRightToRightBottom = new EdgeRequestTo($"{topRightPoint.Id} => {rightBottomPoint.Id}", speed, distance, topRightPoint.Id,
-            rightBottomPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Green));
+            rightBottomPoint.Id);
 
-        var topLeftToLeftTop = new EdgeRequestTo($"{topLeftPoint.Id} => {leftTopPoint.Id}", speed, distance, topLeftPoint.Id, leftTopPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Green));
+        var topLeftToLeftTop = new EdgeRequestTo($"{topLeftPoint.Id} => {leftTopPoint.Id}", speed, distance, topLeftPoint.Id, leftTopPoint.Id);
 
         var topLeftToBottomLeft = new EdgeRequestTo($"{topLeftPoint.Id} => {bottomLeftPoint.Id}", speed, distance, topLeftPoint.Id,
-            bottomLeftPoint.Id,
-            new TrafficLightRequestTo(RedSeconds: 42, YellowSeconds: 2, GreenSeconds: 14, TrafficLightState.Green));
+            bottomLeftPoint.Id);
 
         edges.AddRange([leftSourceToLeftBottom, leftTopToLeftDest, bottomLeftToBottomDest, bottomSourceToBottomRight, rightBottomToRightDest,
             rightSourceToRightTop, topSourceLeftToTopLeft, topSourceRightToTopRight, leftBottomToBottomLeft, leftBottomToRightBottom,

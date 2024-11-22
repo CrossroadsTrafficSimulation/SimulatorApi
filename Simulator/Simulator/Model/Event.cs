@@ -10,4 +10,3 @@ public class Event
     public int Duration { get; set; }
     public Action Action { get; set; } = null!;
 }
-

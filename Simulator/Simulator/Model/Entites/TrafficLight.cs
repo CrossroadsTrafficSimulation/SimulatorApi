@@ -43,8 +43,7 @@ public class TrafficLight()
 
     public int SecondsTillRed(int currentTimeSeconds)
     {
-        currentTimeSeconds++;
-        int totalCycleTime = States[TrafficLightState.Green] + States[TrafficLightState.Yellow] * 2 + States[TrafficLightState.Red];
+        int totalCycleTime = States[TrafficLightState.Green] + (States[TrafficLightState.Yellow] * 2) + States[TrafficLightState.Red];
         currentTimeSeconds %= totalCycleTime;
 
         if (CurrentState == TrafficLightState.Red)
@@ -66,14 +65,14 @@ public class TrafficLight()
                 }
                 if (CurrentState == TrafficLightState.Yellow && PreviousState == TrafficLightState.Red)
                 {
-                    return YellowSeconds * 2 + RedSeconds + GreenSeconds - currentTimeSeconds + GreenSeconds + YellowSeconds;
+                    return (YellowSeconds * 2) + RedSeconds + GreenSeconds - currentTimeSeconds + GreenSeconds + YellowSeconds;
                 }
                 break;
             // r 10 y 2 g 20 y 2
             case TrafficLightState.Red:
                 if (CurrentState == TrafficLightState.Yellow && PreviousState == TrafficLightState.Green)
                 {
-                    return RedSeconds + YellowSeconds * 2 + GreenSeconds - currentTimeSeconds;
+                    return RedSeconds + (YellowSeconds * 2) + GreenSeconds - currentTimeSeconds;
                 }
                 else if (CurrentState == TrafficLightState.Green)
                 {
@@ -93,7 +92,7 @@ public class TrafficLight()
 
     public int SecondsTillGreen(int currentTimeSeconds)
     {
-        int totalCycleTime = States[TrafficLightState.Green] + States[TrafficLightState.Yellow] * 2 + States[TrafficLightState.Red];
+        int totalCycleTime = States[TrafficLightState.Green] + (States[TrafficLightState.Yellow] * 2) + States[TrafficLightState.Red];
         currentTimeSeconds %= totalCycleTime;
 
         if (CurrentState == TrafficLightState.Green)
@@ -115,7 +114,7 @@ public class TrafficLight()
                 }
                 if (CurrentState == TrafficLightState.Yellow && PreviousState == TrafficLightState.Red)
                 {
-                    return YellowSeconds * 2 + RedSeconds + GreenSeconds - currentTimeSeconds;
+                    return (YellowSeconds * 2) + RedSeconds + GreenSeconds - currentTimeSeconds;
                 }
                 break;
             // r y g y

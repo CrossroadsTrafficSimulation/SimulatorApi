@@ -2,11 +2,12 @@
 using Simulator.Model.Enums;
 using Simulator.Utils.SimulationParamsGenerators.Interface;
 using System.Text.Json;
+
 using RouteRequestTo = System.Collections.Generic.List<string>;
 
 namespace Simulator.Utils.SimulationParamsGenerators.Implementation;
 
-public class SimulationParamsGenertorCrossing : ISimulationParamsGenerator
+public class SimulationParamsGeneratorCrossing : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {
@@ -48,7 +49,7 @@ public class SimulationParamsGenertorCrossing : ISimulationParamsGenerator
 
         var rightPedestrianSource = new PedestrianFlowRequestTo([rightBottomPoint.Id, rightTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 20.0 },
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 2.0 },
             { new TimeOnly(hour: 1, minute: 0, second: 0), 0.0 }
         });
 
@@ -80,7 +81,7 @@ public class SimulationParamsGenertorCrossing : ISimulationParamsGenerator
         var rightTopToLeftTop = new EdgeRequestTo($"{rightTopPoint.Id} => {leftTopPoint.Id}", speed, distance, rightTopPoint.Id, leftTopPoint.Id,
             new TrafficLightRequestTo(RedSeconds: 10, YellowSeconds: 2, GreenSeconds: 10, TrafficLightState.Red));
 
-        edges.AddRange([leftSourceToLeftBottom, leftTopToLeftDest, rightBottomToRightDest, rightSourceToRightTop, leftBottomToRightBottom, 
+        edges.AddRange([leftSourceToLeftBottom, leftTopToLeftDest, rightBottomToRightDest, rightSourceToRightTop, leftBottomToRightBottom,
             rightTopToLeftTop]);
         #endregion
 

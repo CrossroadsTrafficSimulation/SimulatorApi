@@ -12,8 +12,7 @@ public class Edge()
     public double SpeedLimit { get; set; }
     public double Distance { get; set; }
     public TrafficLight? TrafficLight { get; set; } = null;
-    //public Queue<Vehicle> Vehicles { get; set; } = [];
-    public ConcurrentQueue<Vehicle> Vehicles { get; set; } = [];
+    public Queue<Vehicle> Vehicles { get; set; } = [];
     public double SumCarsLength { get; set; } = 0.0;
 
     public Edge(string id, Point startPoint, Point endPoint, double speed, double distance, TrafficLight? trafficLight = null) : this()

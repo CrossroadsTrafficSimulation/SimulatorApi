@@ -2,6 +2,8 @@
 using Route = System.Collections.Generic.List<Simulator.Model.Entites.Point>;
 
 namespace Simulator.Model;
+
+// Add route edges
 public class Vehicle
 {
     public Route Route { get; set; } = null!;
@@ -22,6 +24,7 @@ public class Vehicle
             var startPoint = Route[CurrentRoutePos];
             var endPoint = Route[CurrentRoutePos + 1];
 
+            // Add route edges
             return startPoint.Edges.FirstOrDefault(e => e.StartPointId == startPoint.Id && e.EndPointId == endPoint.Id);
         }
     }
