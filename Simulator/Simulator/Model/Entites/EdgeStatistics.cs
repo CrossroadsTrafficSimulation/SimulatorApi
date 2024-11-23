@@ -1,5 +1,7 @@
 ﻿
 
+using System.Text.Json.Serialization;
+
 namespace Simulator.Model.Entites;
 
 public class EdgeStatistics
@@ -8,6 +10,7 @@ public class EdgeStatistics
 
     //Короче, если у нас будет в качестве периода только час, то тогда int самое то, иначе нужно TimeOnly
     public Dictionary<int,double> Statistics { get; set; } = [];
+
     public TrafficLight? TrafficLight { get; set; } = null;
 
     public EdgeStatistics(int sampleRate, Edge edge)
@@ -21,6 +24,7 @@ public class EdgeStatistics
             PreviousState = edge.TrafficLight.PreviousState,
             States = edge.TrafficLight.States
         } : null;
+
         TrafficLight = trafficLight;
         for (int i = 0; i < sampleRate; i++)
         {

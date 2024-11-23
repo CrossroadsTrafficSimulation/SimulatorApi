@@ -8,6 +8,8 @@ public class Statistics
     public List<CrossWalkStatistics> CrossWalkPedestrianDencity { get; set; } = [];
     [JsonIgnore]
     public readonly int StatisticsSampleRate;
+    [JsonIgnore]
+    public List<Tuple<Edge, EdgeStatistics>> FastEdgeStatistics { get; private set; } = [];
 
     public Statistics(int statisticsSampleRate)
     {
@@ -18,7 +20,9 @@ public class Statistics
     {
         foreach (var edge in edges)
         {
-            EdgesVehicleDencity.Add(new EdgeStatistics(StatisticsSampleRate, edge));
+            var stats = new EdgeStatistics(StatisticsSampleRate, edge);
+            EdgesVehicleDencity.Add(stats);
+            FastEdgeStatistics.Add(new(edge, stats));
         }
     }
 

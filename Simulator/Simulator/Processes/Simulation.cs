@@ -3,6 +3,7 @@ using Simulator.Model.Dtos;
 using Simulator.Model.Dtos.Response;
 using Simulator.Model.Entites;
 using Simulator.Model.Enums;
+using System.Diagnostics;
 
 namespace Simulator.Processes;
 
@@ -18,6 +19,10 @@ public class Simulation
     private readonly List<Event>[] _pedestrianQueue;
     private readonly List<Event>[] _vehicleQueue;
     private readonly Random _random = new();
+
+
+    public Stopwatch PedestrianWatch { get; private set; } = new Stopwatch();
+    public Stopwatch EdgeWatch { get; private set; } = new Stopwatch();
 
     public Simulation(int simulationTime)
     {
@@ -147,13 +152,18 @@ public class Simulation
     #region Statistics
     public void CollectEdgeStatistics(int actionStartTime)
     {
+        EdgeWatch.Start();
         var actionStartHour = (int)double.Floor(actionStartTime / (60.0 * 60.0));
-        foreach (var edgeStatistics in _statistics.EdgesVehicleDencity)
+        //foreach (var edgeStatistics in _statistics.EdgesVehicleDencity)
+        //{
+        //    var edge = SimulationModel
+        //                .Edges
+        //                .FirstOrDefault(e => e.Id == edgeStatistics.EdgeId);
+        //    edgeStatistics.Statistics[actionStartHour] += (double)edge!.Vehicles.Count / (60 * 60);
+        //}
+        foreach (var edgeStat in _statistics.FastEdgeStatistics)
         {
-            var edge = SimulationModel
-                        .Edges
-                        .FirstOrDefault(e => e.Id == edgeStatistics.EdgeId);
-            edgeStatistics.Statistics[actionStartHour] += (double)edge!.Vehicles.Count / (60 * 60);
+            edgeStat.Item2.Statistics[actionStartHour] += (double)edgeStat.Item1.Vehicles.Count / (60 * 60);
         }
         var nextEndTime = actionStartTime + 1;
         if (nextEndTime >= _simulationTime)
@@ -162,10 +172,12 @@ public class Simulation
         }
         _statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
             () => CollectEdgeStatistics(nextEndTime)));
+        EdgeWatch.Stop();
     }
 
     public void CollectCrossWalkStatistics(List<Point> crosswalk, int actionStartTime)
     {
+        PedestrianWatch.Start();
         var actionStartHour = (int)double.Floor(actionStartTime / (60.0 * 60.0));
         var ids = crosswalk.Select(c => c.Id);
         var crosswalkStatistics = _statistics.CrossWalkPedestrianDencity.FirstOrDefault(c => c.Croswalk.All(c => ids.Contains(c)));
@@ -177,6 +189,7 @@ public class Simulation
         }
         _statisticsQueue[nextEndTime].Add(CreateEvent(actionStartTime, nextEndTime, EventType.CollectStatistics,
             () => CollectCrossWalkStatistics(crosswalk, nextEndTime)));
+        PedestrianWatch.Stop();
     }
     #endregion
 

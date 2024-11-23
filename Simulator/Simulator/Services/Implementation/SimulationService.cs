@@ -60,6 +60,9 @@ public class SimulationService(IModelPreparationService preparationService) : IS
         Console.WriteLine($"Statistics: {staticticsWatch.Elapsed} {100 * (double)staticticsWatch.ElapsedMilliseconds / watch.ElapsedMilliseconds:F1}%");
         Console.WriteLine($"Done: {watch.ElapsedMilliseconds}");
 
+        Console.WriteLine($"Pedestrina Statistics: {simulation.PedestrianWatch.Elapsed} {100 * (double)simulation.PedestrianWatch.ElapsedMilliseconds / staticticsWatch.ElapsedMilliseconds:F1}%");
+        Console.WriteLine($"Edge Statistics: {simulation.EdgeWatch.Elapsed} {100 * (double)simulation.EdgeWatch.ElapsedMilliseconds / staticticsWatch.ElapsedMilliseconds:F1}%");
+
         return simulation.GetResult();
     }
 
