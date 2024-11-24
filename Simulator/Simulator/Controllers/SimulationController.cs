@@ -13,11 +13,11 @@ public class SimulationController(ISimulationService simulationService) : Contro
     [HttpPost]
     [Route("run")]
     public IActionResult RunSimulation(
-        //[FromBody] SimulationParamsRequestTo simulationParams
+        [FromBody] SimulationParamsRequestTo simulationParams
         )
     {
         //Console.WriteLine(new SimulationParamsGeneratorCrossroad().GetSimulationParamsJson());
-        var simulationParams = new SimulationParamsGeneratorCrossroad().GetSimulationParams();
+        //var simulationParams = new SimulationParamsGeneratorCrossroad().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
 
         var stopwatch = new Stopwatch();
