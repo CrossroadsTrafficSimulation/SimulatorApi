@@ -6,8 +6,7 @@ using System.Text.Json;
 using RouteRequestTo = System.Collections.Generic.List<string>;
 
 namespace Simulator.Utils.SimulationParamsGenerators.Implementation;
-
-public class SimulationParamsGeneratorUniversityCrossroad : ISimulationParamsGenerator
+public class UniversityCrossroadOneHour : ISimulationParamsGenerator
 {
     public SimulationParamsRequestTo GetSimulationParams()
     {
@@ -65,36 +64,10 @@ public class SimulationParamsGeneratorUniversityCrossroad : ISimulationParamsGen
 
         var sourceDict = new Dictionary<TimeOnly, double>
         {
-            // morning
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 0.1 },
-            { new TimeOnly(hour: 6, minute: 0, second: 0), 1.5 },
-            // pair 1 9:00
-            { new TimeOnly(hour: 8, minute: 40, second: 0), 20 },
-            { new TimeOnly(hour: 9, minute: 5, second: 0), 1 },
-            // pair 2 10:20 - 10:35
-            { new TimeOnly(hour: 10, minute: 15, second: 0), 25 },
-            { new TimeOnly(hour: 10, minute: 40, second: 0), 1 },
-            // pair 3 11:55 - 12:25
-            { new TimeOnly(hour: 11, minute: 50, second: 0), 30 },
-            { new TimeOnly(hour: 12, minute: 30, second: 0), 1 },
-            // pair 4 13:45 - 14:00
-            { new TimeOnly(hour: 13, minute: 40, second: 0), 35 },
-            { new TimeOnly(hour: 14, minute: 5, second: 0), 1 },
-            // pair 5 15:20 - 15:50
-            { new TimeOnly(hour: 15, minute: 15, second: 0), 40 },
-            { new TimeOnly(hour: 15, minute: 55, second: 0), 1 },                    
-            // pair 6 17:10 - 17:25
-            { new TimeOnly(hour: 17, minute: 5, second: 0), 35 },
-            { new TimeOnly(hour: 17, minute: 30, second: 0), 1 },                    
-            // pair 7 18:45 - 19:00
-            { new TimeOnly(hour: 18, minute: 40, second: 0), 25 },
-            { new TimeOnly(hour: 19, minute: 5, second: 0), 1 },                    
-            // pair 8 20:20 - 20:40
-            { new TimeOnly(hour: 20, minute: 15, second: 0), 15 },
-            { new TimeOnly(hour: 20, minute: 45, second: 0), 1 },
-            // night
-            { new TimeOnly(hour: 22, minute: 0, second: 0), 10 },
-            { new TimeOnly(hour: 22, minute: 5, second: 0), 0.1 },
+            { new TimeOnly(hour: 3, minute: 11, second: 0), 40 },
+            { new TimeOnly(hour: 8, minute: 0, second: 0), 1 },  
+            { new TimeOnly(hour: 9, minute: 36, second: 0), 40 },  
+            { new TimeOnly(hour: 17, minute: 36, second: 0), 1 },  
         };
 
         var leftBottomPedestriansSource = new PedestrianFlowRequestTo([leftBottomPoint.Id, leftTopPoint.Id], sourceDict);
@@ -219,77 +192,19 @@ public class SimulationParamsGeneratorUniversityCrossroad : ISimulationParamsGen
             [
                 new FlowRequestTo(leftFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    // morning
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 0.1 },
-                    { new TimeOnly(hour: 6, minute: 0, second: 0), 1.5 },
-                    // pair 1 9:00
-                    { new TimeOnly(hour: 8, minute: 55, second: 0), 2 },
-                    { new TimeOnly(hour: 9, minute: 5, second: 0), 1 },
-                    // pair 2 10:20 - 10:35
-                    { new TimeOnly(hour: 10, minute: 15, second: 0), 2 },
-                    { new TimeOnly(hour: 10, minute: 40, second: 0), 1 },
-                    // pair 3 11:55 - 12:25
-                    { new TimeOnly(hour: 11, minute: 50, second: 0), 2 },
-                    { new TimeOnly(hour: 12, minute: 30, second: 0), 1 },
-                    // pair 4 13:45 - 14:00
-                    { new TimeOnly(hour: 13, minute: 40, second: 0), 2 },
-                    { new TimeOnly(hour: 14, minute: 5, second: 0), 1 },
-                    // pair 5 15:20 - 15:50
-                    { new TimeOnly(hour: 15, minute: 15, second: 0), 2 },
-                    { new TimeOnly(hour: 15, minute: 55, second: 0), 1 },                    
-                    // pair 6 17:10 - 17:25
-                    { new TimeOnly(hour: 17, minute: 5, second: 0), 2 },
-                    { new TimeOnly(hour: 17, minute: 30, second: 0), 1 },                    
-                    // pair 7 18:45 - 19:00
-                    { new TimeOnly(hour: 18, minute: 40, second: 0), 2 },
-                    { new TimeOnly(hour: 19, minute: 5, second: 0), 1 },                    
-                    // pair 8 20:20 - 20:40
-                    { new TimeOnly(hour: 20, minute: 15, second: 0), 2 },
-                    { new TimeOnly(hour: 20, minute: 45, second: 0), 1 },
-                    // night
-                    { new TimeOnly(hour: 21, minute: 55, second: 0), 2 },
-                    { new TimeOnly(hour: 22, minute: 5, second: 0), 0.1 },
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1 },
                 }),
                 new FlowRequestTo(bottomFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1 },
                 }),
                 new FlowRequestTo(rightFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1 },
                 }),
                 new FlowRequestTo(topFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    // morning
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 0.1 },
-                    { new TimeOnly(hour: 6, minute: 0, second: 0), 1.5 },
-                    // pair 1 9:00
-                    { new TimeOnly(hour: 8, minute: 55, second: 0), 2 },
-                    { new TimeOnly(hour: 9, minute: 5, second: 0), 1 },
-                    // pair 2 10:20 - 10:35
-                    { new TimeOnly(hour: 10, minute: 15, second: 0), 2 },
-                    { new TimeOnly(hour: 10, minute: 40, second: 0), 1 },
-                    // pair 3 11:55 - 12:25
-                    { new TimeOnly(hour: 11, minute: 50, second: 0), 2 },
-                    { new TimeOnly(hour: 12, minute: 30, second: 0), 1 },
-                    // pair 4 13:45 - 14:00
-                    { new TimeOnly(hour: 13, minute: 40, second: 0), 2 },
-                    { new TimeOnly(hour: 14, minute: 5, second: 0), 1 },
-                    // pair 5 15:20 - 15:50
-                    { new TimeOnly(hour: 15, minute: 15, second: 0), 2 },
-                    { new TimeOnly(hour: 15, minute: 55, second: 0), 1 },                    
-                    // pair 6 17:10 - 17:25
-                    { new TimeOnly(hour: 17, minute: 5, second: 0), 2 },
-                    { new TimeOnly(hour: 17, minute: 30, second: 0), 1 },                    
-                    // pair 7 18:45 - 19:00
-                    { new TimeOnly(hour: 18, minute: 40, second: 0), 2 },
-                    { new TimeOnly(hour: 19, minute: 5, second: 0), 1 },                    
-                    // pair 8 20:20 - 20:40
-                    { new TimeOnly(hour: 20, minute: 15, second: 0), 2 },
-                    { new TimeOnly(hour: 20, minute: 45, second: 0), 1 },
-                    // night
-                    { new TimeOnly(hour: 22, minute: 0, second: 0), 2 },
-                    { new TimeOnly(hour: 22, minute: 5, second: 0), 0.1 },
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1 },
                 }),
             ]);
         #endregion
@@ -303,4 +218,5 @@ public class SimulationParamsGeneratorUniversityCrossroad : ISimulationParamsGen
 
         return JsonSerializer.Serialize(simulationParams);
     }
+
 }
