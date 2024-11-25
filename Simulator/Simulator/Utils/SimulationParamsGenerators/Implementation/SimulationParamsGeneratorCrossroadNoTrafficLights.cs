@@ -63,22 +63,22 @@ public class SimulationParamsGeneratorCrossroadNoTrafficLights : ISimulationPara
 
         var leftPedestriansSource = new PedestrianFlowRequestTo([leftBottomPoint.Id, leftTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 20.0 }
         });
 
         var bottomPedestrianSource = new PedestrianFlowRequestTo([bottomLeftPoint.Id, bottomRightPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 20.0 }
         });
 
         var rightPedestrianSource = new PedestrianFlowRequestTo([rightBottomPoint.Id, rightTopPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 20.0 }
         });
 
         var topPedestrianSource = new PedestrianFlowRequestTo([topLeftPoint.Id, topRightPoint.Id], new Dictionary<TimeOnly, double>
         {
-            { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+            { new TimeOnly(hour: 0, minute: 0, second: 0), 20.0 }
         });
 
         pedestrianFlows.AddRange([bottomPedestrianSource, topPedestrianSource, rightPedestrianSource, leftPedestriansSource]);
@@ -169,23 +169,23 @@ public class SimulationParamsGeneratorCrossroadNoTrafficLights : ISimulationPara
             [
                 new FlowRequestTo(leftFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(bottomFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(rightFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(topFlowSourceLeft.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(topFlowSourceRight.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 })
             ]);
         #endregion

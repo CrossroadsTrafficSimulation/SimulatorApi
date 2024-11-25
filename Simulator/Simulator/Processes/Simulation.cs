@@ -51,7 +51,7 @@ public class Simulation
 
     public void ProcessVehicles(int currentTime)
     {
-        //Console.WriteLine($"Current time: {currentTime}");
+        //Console.WriteLine($"Current time: {currentTime / 60 / 60}:{currentTime / 60 % 60}:{currentTime % 60 % 60}");
         //Console.WriteLine($"Vehicle tasks: {_vehicleQueue[currentTime].Count}");
 
         /*        Console.WriteLine();
@@ -323,7 +323,7 @@ public class Simulation
         var spawnEdge = SimulationModel.Edges.First(e => e.StartPointId == flow.PointId);
         var carSize = double.Round(_random.NextDouble(), 1) + 4.0;
         flow.VehiclesInQueue += vehiclesPerMinute / 60.0;
-
+        //Console.WriteLine($"Q: {flow.PointId} => {flow.VehiclesInQueue}");
         if (flow.VehiclesInQueue >= 1.0)
         {
             AddGeneratedToEdge(flow, spawnEdge, eventStartsAt, carSize);
@@ -359,6 +359,10 @@ public class Simulation
                 MoveVehicle(vehicle, eventStartsAt);
                 vehiclesAddedToEdgeCount++;
             }
+            /*else
+            {
+                Console.WriteLine($"Failed to enq to {spawnEdge.Id}, q: {spawnEdge.Vehicles.Count}");
+            }*/
         }
 
         flow.VehiclesInQueue -= vehiclesAddedToEdgeCount;

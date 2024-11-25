@@ -23,7 +23,7 @@ public class SimulationService(IModelPreparationService preparationService) : IS
         }
     }
 
-    private static SimulationResponseTo RunSimulation(Simulation simulation)
+    private SimulationResponseTo RunSimulation(Simulation simulation)
     {
         var trafficLightsWatch = new Stopwatch();
         var pedestriansWatch = new Stopwatch();
@@ -75,7 +75,7 @@ public class SimulationService(IModelPreparationService preparationService) : IS
                     results.Add(RunSimulation(simulation));
                 }*/
 
-        _ = Parallel.ForEach(_simulations,
+        _ = Parallel.ForEach(_simulations, new ParallelOptions() { MaxDegreeOfParallelism = 10},
             (simulation) =>
             {
                 results.Add(RunSimulation(simulation));

@@ -168,7 +168,7 @@ public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
                 [rightFlowSource.Id, rightTopPoint.Id, leftTopPoint.Id, leftFlowDest.Id],
                 [topFlowSourceRight.Id, topRightPoint.Id, rightBottomPoint.Id, rightFlowDest.Id],
                 [topFlowSourceLeft.Id, topLeftPoint.Id, bottomLeftPoint.Id, bottomFlowDest.Id],
-                [topFlowSourceLeft.Id, topLeftPoint.Id, rightTopPoint.Id, rightTopPoint.Id]
+                [topFlowSourceLeft.Id, topLeftPoint.Id, rightTopPoint.Id, rightFlowDest.Id]
             ]);
         #endregion
 
@@ -179,23 +179,23 @@ public class SimulationParamsGeneratorCrossroad : ISimulationParamsGenerator
             [
                 new FlowRequestTo(leftFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 10.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(bottomFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(rightFlowSource.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(topFlowSourceLeft.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 }),
                 new FlowRequestTo(topFlowSourceRight.Id, Density: new Dictionary<TimeOnly, double>
                 {
-                    { new TimeOnly(hour: 0, minute: 0, second: 0), 1.0 }
+                    { new TimeOnly(hour: 0, minute: 0, second: 0), 6.0 }
                 })
             ]);
         #endregion
