@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Simulator.Model.Dtos.Request;
 using Simulator.Services.Interface;
+using Simulator.Utils.SimulationParamsGenerators.Implementation;
 using System.Diagnostics;
 
 namespace Simulator.Controllers;
@@ -12,9 +13,10 @@ public class SimulationController(ISimulationService simulationService) : Contro
     [HttpPost]
     [Route("run")]
     public IActionResult RunSimulation(
-        [FromBody] SimulationParamsRequestTo simulationParams
+        //[FromBody] SimulationParamsRequestTo simulationParams
         )
     {
+        var simulationParams = new SimulationParamsGeneratorUniversityCrossroad().GetSimulationParams();
         simulationService.SetUpSimulations(simulationParams);
 
         var stopwatch = new Stopwatch();

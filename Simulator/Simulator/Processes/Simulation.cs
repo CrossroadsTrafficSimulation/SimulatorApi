@@ -351,7 +351,9 @@ public class Simulation
             }
         }
 
-        flow.VehiclesInQueue -= vehiclesAddedToEdgeCount;
+        // check
+        flow.VehiclesInQueue = 0;
+        //flow.VehiclesInQueue -= vehiclesAddedToEdgeCount;
     }
 
     public void MoveVehicle(Vehicle vehicle, int eventStartsAt)
